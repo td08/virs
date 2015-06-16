@@ -1,0 +1,6 @@
+C:\Users\Trevor\Documents\GitHub\virs\ServerTest\ServerTest\bin\Debug\ServerTest.exe.config
+C:\Users\Trevor\Documents\GitHub\virs\ServerTest\ServerTest\bin\Debug\ServerTest.exe
+C:\Users\Trevor\Documents\GitHub\virs\ServerTest\ServerTest\bin\Debug\ServerTest.pdb
+C:\Users\Trevor\Documents\GitHub\virs\ServerTest\ServerTest\obj\Debug\ServerTest.csprojResolveAssemblyReference.cache
+C:\Users\Trevor\Documents\GitHub\virs\ServerTest\ServerTest\obj\Debug\ServerTest.exe
+C:\Users\Trevor\Documents\GitHub\virs\ServerTest\ServerTest\obj\Debug\ServerTest.pdb
