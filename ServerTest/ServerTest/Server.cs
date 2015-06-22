@@ -91,11 +91,11 @@ namespace ServerTest
 
         }
 
-        static void Main()
-        {
-            System.Console.WriteLine("Server Started!");
-            createListener();
-        }
+        //static void Main()
+        //{
+        //    System.Console.WriteLine("Server Started!");
+        //    createListener();
+        //}
 
         
     }
