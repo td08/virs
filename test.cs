@@ -322,5 +322,6 @@ public class RijndaelSimpleTest
         );
 
         Console.WriteLine(String.Format("Decrypted : {0}", plainText));
+        Console.ReadKey();
     }
 }

@@ -76,7 +76,7 @@ namespace AsyncServer
                     allDone.Reset();
 
                     // Start an asynchronous socket to listen for connections.
-                    Console.WriteLine("Waiting for a connection...");
+                    Console.WriteLine("Waiting for a new connection...");
                     listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
 
                     // Wait until a connection is made before continuing.
@@ -199,30 +199,38 @@ namespace AsyncServer
         public static int Main(String[] args)
         {
             Console.WriteLine("Starting server...\nStart using localhost? ('y' or 'n')");
-            string op = Console.ReadLine();
-            try
-            {
-                Thread listenThread = new Thread(new ParameterizedThreadStart(StartListening));
-                listenThread.Start(op);
-                while (true)
-                {
-                    op = Console.ReadLine();
-                    if (op.Equals("stop"))
-                        break;
-                }
-                listenThread.Abort();
-                Console.WriteLine("ended");
-                Console.WriteLine(listenThread.ThreadState);
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            //StartListening(op);
+            StartListening(Console.ReadLine());
+                       
             Console.Write("helll");
             Console.Read();
             return 0;
+
+
+            //Console.WriteLine("Starting server...\nStart using localhost? ('y' or 'n')");
+            //string op = Console.ReadLine();
+            //try
+            //{
+            //    Thread listenThread = new Thread(new ParameterizedThreadStart(StartListening));
+            //    listenThread.Start(op);
+            //    while (true)
+            //    {
+            //        op = Console.ReadLine();
+            //        if (op.Equals("stop"))
+            //            break;
+            //    }
+            //    listenThread.Abort();
+            //    Console.WriteLine("ended");
+            //    Console.WriteLine(listenThread.ThreadState);
+
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.ToString());
+            //}
+            ////StartListening(op);
+            //Console.Write("helll");
+            //Console.Read();
+            //return 0;
         }
     }
 }
