@@ -23,12 +23,21 @@ namespace ServerTest
         {
             // Create an instance of the TcpListener class.
             TcpListener tcpListener = null;
-            IPAddress ipAddress = Dns.GetHostEntry("localhost").AddressList[0];
+            IPAddress ipAddress = null;
+            foreach (IPAddress ip in Dns.GetHostEntry("localhost").AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ipAddress = ip;
+                }
+            }
+            //IPAddress ipAddress = Dns.GetHostEntry("localhost").AddressList[0];
+            
             try
             {
                 // Set the listener on the local IP address 
                 // and specify the port.
-                tcpListener = new TcpListener(ipAddress, 13);
+                tcpListener = new TcpListener(ipAddress, 11000);
                 tcpListener.Start();
                 output = "Waiting for a connection...";
             }
@@ -47,6 +56,7 @@ namespace ServerTest
                 // Socket socket = tcpListener.AcceptSocket()
                 // for greater flexibility.
                 TcpClient tcpClient = tcpListener.AcceptTcpClient();
+                Console.WriteLine("Client connected");
                 // Read the data stream from the client. 
                 byte[] bytes = new byte[256];
                 NetworkStream stream = tcpClient.GetStream();
@@ -58,6 +68,7 @@ namespace ServerTest
 
         static void Main()
         {
+            Console.WriteLine("starting...");
             Listener listener = new Listener();
             listener.createListener();
         }
