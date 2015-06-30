@@ -1,6 +1,6 @@
 ﻿namespace Json_Server_Form
 {
-    partial class Form1
+    partial class ServerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -33,6 +33,7 @@
             this.localStartButton = new System.Windows.Forms.Button();
             this.stopButton = new System.Windows.Forms.Button();
             this.outputDisplay = new System.Windows.Forms.TextBox();
+            this.OpenFileButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // startButton
@@ -77,18 +78,30 @@
             // outputDisplay
             // 
             this.outputDisplay.Location = new System.Drawing.Point(144, 136);
+            this.outputDisplay.Multiline = true;
             this.outputDisplay.Name = "outputDisplay";
             this.outputDisplay.ReadOnly = true;
             this.outputDisplay.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.outputDisplay.Size = new System.Drawing.Size(269, 26);
+            this.outputDisplay.Size = new System.Drawing.Size(269, 201);
             this.outputDisplay.TabIndex = 4;
-            this.outputDisplay.Text = "Received data...";
+            this.outputDisplay.Text = "Status\r\n-----------\r\n";
+            // 
+            // OpenFileButton
+            // 
+            this.OpenFileButton.Location = new System.Drawing.Point(430, 12);
+            this.OpenFileButton.Name = "OpenFileButton";
+            this.OpenFileButton.Size = new System.Drawing.Size(75, 83);
+            this.OpenFileButton.TabIndex = 5;
+            this.OpenFileButton.Text = "Open File";
+            this.OpenFileButton.UseVisualStyleBackColor = true;
+            this.OpenFileButton.Click += new System.EventHandler(this.OpenFileButton_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(716, 417);
+            this.ClientSize = new System.Drawing.Size(517, 417);
+            this.Controls.Add(this.OpenFileButton);
             this.Controls.Add(this.outputDisplay);
             this.Controls.Add(this.stopButton);
             this.Controls.Add(this.localStartButton);
@@ -108,6 +121,7 @@
         private System.Windows.Forms.Button localStartButton;
         private System.Windows.Forms.Button stopButton;
         private System.Windows.Forms.TextBox outputDisplay;
+        private System.Windows.Forms.Button OpenFileButton;
     }
 }
 

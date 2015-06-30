@@ -52,7 +52,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncClient.cs" />
     <Compile Include="FormMain.cs" />
+    <Compile Include="InputBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InputBox.Designer.cs">
+      <DependentUpon>InputBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Jlib.cs" />
     <Compile Include="ApplicationInterface.cs">
       <SubType>Form</SubType>
@@ -69,6 +76,9 @@
   <ItemGroup>
     <EmbeddedResource Include="ApplicationInterface.resx">
       <DependentUpon>ApplicationInterface.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InputBox.resx">
+      <DependentUpon>InputBox.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

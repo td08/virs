@@ -37,18 +37,18 @@ namespace AsyncServer
         {
             // Data buffer for incoming data.
             byte[] bytes = new Byte[1024];
+            
+            //check to start server in localhost mode
             string op = (string)opcode;
             string host = Dns.GetHostName();
             if (op.Equals("y") | op.Equals("Y"))
                 host = "localhost";
 
-            // Establish the local endpoint for the socket.
-            // The DNS name of the computer
-            // running the listener is "host.contoso.com".
+            //get IP host info
             IPHostEntry ipHostInfo = Dns.GetHostEntry(host);
 
+            //enumerate and obtain IPv4 IP address
             IPAddress ipAddress = null;
-
             foreach (IPAddress ip in ipHostInfo.AddressList)
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
@@ -58,11 +58,11 @@ namespace AsyncServer
                 }                
             }
 
+            //create new IP endpoint on specified port number
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
             // Create a TCP/IP socket.
-            Socket listener = new Socket(AddressFamily.InterNetwork,
-                SocketType.Stream, ProtocolType.Tcp);
+            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
@@ -70,6 +70,7 @@ namespace AsyncServer
                 listener.Bind(localEndPoint);
                 listener.Listen(100);
 
+                //loop used to accept incoming connections
                 while (true)
                 {
                     // Set the event to nonsignaled state.

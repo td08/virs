@@ -32,3 +32,4 @@ C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\bin\Debug\Newto
 C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_Client_Form.csprojResolveAssemblyReference.cache
 C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_Client_Form.ApplicationInterface.resources
 C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_Client_Form.csproj.GenerateResource.Cache
+C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_Client_Form.InputBox.resources

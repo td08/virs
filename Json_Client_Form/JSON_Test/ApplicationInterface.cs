@@ -16,12 +16,14 @@ namespace Json_Client_Form
     {
 
         
-        Vitals clientData;
+        private Vitals clientData;
 
         public ApplicationInterface()
         {
             InitializeComponent();
         }
+
+        private delegate void SetTextCallback(string text);
 
         //openFile_Click event handler
         private void openFile_Click(object sender, EventArgs e)
@@ -32,7 +34,6 @@ namespace Json_Client_Form
             //open file dialog window with start directory defined
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
             openFileDialog1.InitialDirectory = @"c:\\Users\Documents\School Work\Ecen 403";
-            //openFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
             openFileDialog1.Filter = "json files (*.json)|*.json";
             openFileDialog1.RestoreDirectory = true;
             
@@ -47,14 +48,10 @@ namespace Json_Client_Form
                         //create new Vitals object from jstring
                         clientData = new Vitals(jstring);
                         //populate form fields and chart with clientData
-                        addTemp(clientData.temp);
-                        addHR(clientData.heart);
-                        addBP(clientData.bp);
-                        addEKG(clientData.ekg);
-                        addTime(clientData.logTime);
-                        
+                        populate(clientData);          
                         //enable save button
                         this.saveFile.Enabled = true;
+                        this.uploadFile.Enabled = true;
                         Debug.Write(jstring);
                     }
                 }
@@ -77,6 +74,7 @@ namespace Json_Client_Form
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     String fileName = saveFileDialog1.FileName;
+                    Debug.Write("Filename: " + fileName);
                     if (clientData != null)
                     {
                         String json = Jlib.toJson(clientData);
@@ -91,7 +89,48 @@ namespace Json_Client_Form
             }            
         }
 
+        //uploadFile_Click event handler transmits client data to remote server
+        private void uploadFile_Click(object sender, EventArgs e)
+        {
+            //create new input box form
+            InputBox iBox = new InputBox("IP Address", "Enter IP Address");
+
+            //assign dialogresult of textbox to ipentry
+            string ipentry = iBox.ShowDialog() == DialogResult.OK ? iBox.inputText.Text : "";
+            appendOutputDisplay(ipentry);
+
+            //start client
+            if (clientData != null) 
+            {
+                AsyncClient client = new AsyncClient(this);
+                client.StartClient(ipentry, Jlib.toJson(clientData));
+            }          
+        }
+
+        public void appendOutputDisplay(string text)
+        {
+            if (this.outputDisplay.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(appendOutputDisplay);
+                this.Invoke(d, new string[] { text });
+            }
+            else
+            {
+                this.outputDisplay.AppendText(text);
+                this.outputDisplay.AppendText(System.Environment.NewLine);
+            }
+        }
+
         //functions to add data to the listView collection
+        #region add functions
+        private void populate(Vitals v)
+        {
+            addTemp(clientData.temp);
+            addHR(clientData.heart);
+            addBP(clientData.bp);
+            addEKG(clientData.ekg);
+            addTime(clientData.logTime);
+        }
         private void addTemp(float temp)
         {
             this.listView1.Items[1].SubItems.Add(temp.ToString());
@@ -120,9 +159,12 @@ namespace Json_Client_Form
         {
             this.logTimeLabel.Text = "Log date: " + time;
         }
+        #endregion
 
         
 
-   
+
+
+
     }
 }

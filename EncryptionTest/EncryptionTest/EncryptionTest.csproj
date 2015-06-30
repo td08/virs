@@ -44,7 +44,9 @@
     <Compile Include="..\..\test.cs">
       <Link>test.cs</Link>
     </Compile>
-    <Compile Include="Class1.cs" />
+    <Compile Include="AliceClient.cs" />
+    <Compile Include="BobServer.cs" />
+    <Compile Include="DiffHel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

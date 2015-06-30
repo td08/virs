@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Diagnostics;
+using System.IO;
 
 namespace Json_Server_Form
 {
@@ -27,13 +28,13 @@ namespace Json_Server_Form
 
     public class AsyncServer
     {
-        // Thread signal.
+        //static class properties
         public static ManualResetEvent allDone = new ManualResetEvent(false);
-        public static Json_Server_Form.Form1 parent;
+        public static Json_Server_Form.ServerForm parent;
 
         public AsyncServer(object obj)
         {
-            parent = (Json_Server_Form.Form1)obj;
+            parent = (Json_Server_Form.ServerForm)obj;
         }
 
         public void StartListening(Boolean localHost)
@@ -42,44 +43,33 @@ namespace Json_Server_Form
             byte[] bytes = new Byte[1024];
             IPHostEntry ipHostInfo;
             IPAddress ipAddress = null;
-
-            // Establish the local endpoint for the socket.
-            // The DNS name of the computer
-            // running the listener is "host.contoso.com".
+            string host = Dns.GetHostName();
 
             if (localHost)
             {
-                ipHostInfo = Dns.GetHostEntry("localhost");
-                foreach (IPAddress ip in ipHostInfo.AddressList)
-                {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        ipAddress = ip;
-                    }
-                }
-                Debug.WriteLine("Server started using localhost at: {0}", ipAddress);
-                parent.setIpLabel(ipAddress.ToString());
+                host = "localHost";
+                parent.appendOutputDisplay("Server started using localhost");
+            }
 
-            }
-            else
+            //get IP host info
+            ipHostInfo = Dns.GetHostEntry(host);
+
+            //enumerate and obtain IPv4 IP address
+            foreach (IPAddress ip in ipHostInfo.AddressList)
             {
-                ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                foreach (IPAddress ip in ipHostInfo.AddressList)
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        ipAddress = ip;
-                    }
+                    ipAddress = ip;
+                    parent.setIpLabel(ipAddress.ToString());
+                    parent.appendOutputDisplay("Server started with IP: " + ipAddress);
                 }
-                Debug.WriteLine("Server started with IP: {0}", ipAddress);
-                parent.setIpLabel(ipAddress.ToString());
             }
-            
+
+            //create new IP endpoint on specified port number
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
             // Create a TCP/IP socket.
-            Socket listener = new Socket(AddressFamily.InterNetwork,
-                SocketType.Stream, ProtocolType.Tcp);
+            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
@@ -87,21 +77,23 @@ namespace Json_Server_Form
                 listener.Bind(localEndPoint);
                 listener.Listen(100);
 
-                while (true)
-                {
-                    // Set the event to nonsignaled state.
-                    allDone.Reset();
+                parent.appendOutputDisplay("Waiting for a new connection...");
+                listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
 
-                    // Start an asynchronous socket to listen for connections.
-                    Console.WriteLine("Waiting for a connection...");
 
-                    listener.BeginAccept(
-                        new AsyncCallback(AcceptCallback),
-                        listener);
+                ////loop used to accept incoming connections
+                //while (true)
+                //{
+                //    // Set the event to nonsignaled state.
+                //    allDone.Reset();
 
-                    // Wait until a connection is made before continuing.
-                    allDone.WaitOne();
-                }
+                //    // Start an asynchronous socket to listen for connections.
+                //    parent.appendOutputDisplay("Waiting for a new connection...");
+                //    listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+
+                //    // Wait until a connection is made before continuing.
+                //    allDone.WaitOne();
+                //}
 
             }
             catch (Exception e)
@@ -109,27 +101,27 @@ namespace Json_Server_Form
                 Console.WriteLine(e.ToString());
             }
 
-            Console.WriteLine("\nPress ENTER to continue...");
-            Console.Read();
+            //Console.WriteLine("\nPress ENTER to continue...");
+            //Console.Read();
 
         }
 
         public static void AcceptCallback(IAsyncResult ar)
         {
-
-
             // Get the socket that handles the client request.
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
+            parent.appendOutputDisplay("Client connected.");
 
             // Signal the main thread to continue.
-            allDone.Set();
+            //allDone.Set();
 
             // Create the state object.
             StateObject state = new StateObject();
             state.workSocket = handler;
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                new AsyncCallback(ReadCallback), state);
+          
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+
         }
 
         public static void ReadCallback(IAsyncResult ar)
@@ -143,33 +135,54 @@ namespace Json_Server_Form
 
             // Read data from the client socket. 
             int bytesRead = handler.EndReceive(ar);
+            parent.appendOutputDisplay("Bytes received: " + bytesRead);
 
             if (bytesRead > 0)
             {
-                // There  might be more data, so store the data received so far.
-                state.sb.Append(Encoding.ASCII.GetString(
-                    state.buffer, 0, bytesRead));
+                state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
+                parent.appendOutputDisplay("Finished receiving");
 
-                // Check for end-of-file tag. If it is not there, read 
-                // more data.
-                content = state.sb.ToString();
-                if (content.IndexOf("<EOF>") > -1)
-                {
-                    // All the data has been read from the 
-                    // client. Display it on the console.
-                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                        content.Length, content);
-                    parent.appendReceivedData(content);
-                    // Echo the data back to the client.
-                    Send(handler, content);
-                }
-                else
-                {
-                    // Not all data received. Get more.
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
-                }
+                //write received data to file
+                writeToFile(state);
+
             }
+
+
+
+            //if (bytesRead > 0)
+            //{
+            //    // There  might be more data, so store the data received so far.
+            //    state.sb.Append(Encoding.ASCII.GetString(
+            //        state.buffer, 0, bytesRead));
+
+            //    // Check for end-of-file tag. If it is not there, read 
+            //    // more data.
+            //    content = state.sb.ToString();
+            //    if (content.IndexOf("<EOF>") > -1)
+            //    {
+            //        // All the data has been read from the 
+            //        // client. Display it on the console.
+            //        Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
+            //            content.Length, content);
+            //        // Echo the data back to the client.
+            //        //Send(handler, content);
+            //    }
+            //    else
+            //    {
+            //        parent.appendOutputDisplay("Still receiving...");
+            //        // Not all data received. Get more.
+            //        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+            //        new AsyncCallback(ReadCallback), state);
+            //    }
+            //}
+            //else
+            //{
+            //    //Console.WriteLine("Finished receiving.\n" + state.sb.ToString());
+            //    parent.appendOutputDisplay("Finished receiving.\n" + state.sb.ToString());
+
+            //    //handler.Shutdown(SocketShutdown.Both);
+            //    //handler.Close();
+            //}
         }
 
         private static void Send(Socket handler, String data)
@@ -204,6 +217,11 @@ namespace Json_Server_Form
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private static void writeToFile(StateObject state)
+        {
+            File.WriteAllText(@"C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\test.json", state.sb.ToString());
         }
 
     }
