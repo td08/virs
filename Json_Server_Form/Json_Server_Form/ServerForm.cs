@@ -32,8 +32,6 @@ namespace Json_Server_Form
             //start server without localhost
             AsyncServer server = new AsyncServer(this);
             server.StartListening(false);
-            appendOutputDisplay("thread");
-
         }
 
         private void localStartButton_Click(object sender, EventArgs e)
@@ -106,7 +104,7 @@ namespace Json_Server_Form
 
         private string displayData(Vitals data)
         {
-            appendOutputDisplay("Vitals Data\r\n------------------");
+            appendOutputDisplay("\r\nVitals Data\r\n------------------");
             return "Temp: " + data.temp + System.Environment.NewLine + "Heart: " + data.heart 
                 + System.Environment.NewLine + "BP: " + data.bp[0] + "/" + data.bp[1];
         }
