@@ -24,6 +24,7 @@ namespace Json_Client_Form
 
     public class AsyncClient {
         private static Json_Client_Form.ApplicationInterface parent;
+        private static string sendData;
 
         // The port number for the remote device.
         private const int port = 11000;
@@ -38,12 +39,13 @@ namespace Json_Client_Form
 
         // The response from the remote device.
 
-        public AsyncClient(object obj)
+        public AsyncClient(object obj, string data)
         {
             parent = (Json_Client_Form.ApplicationInterface)obj;
+            sendData = data;
         }
 
-        public void StartClient(string myip, string data) {
+        public void StartClient(string myip) {
         // Connect to a remote device.
         try {
             // Establish the remote endpoint for the socket.
@@ -66,14 +68,14 @@ namespace Json_Client_Form
 
             // Connect to the remote endpoint.
             client.BeginConnect( remoteEP, new AsyncCallback(ConnectCallback), client);
-            connectDone.WaitOne();
+            //connectDone.WaitOne();
             
             //send data to server
-            Send(client, data);
-            sendDone.WaitOne();
+            //Send(client, "hello");
+            //sendDone.WaitOne();
 
             //perform shutdown
-            shutdownClient(client);            
+            //shutdownClient(client);            
         } 
         catch (Exception e) 
         {
@@ -90,8 +92,10 @@ namespace Json_Client_Form
             client.EndConnect(ar);
             parent.appendOutputDisplay("Socket connected to: " + client.RemoteEndPoint.ToString());
 
+            Send(client, sendData);
+
             // Signal main thread that the connection has been made.
-            connectDone.Set();
+            //connectDone.Set();
         }         
         catch (Exception e) 
         {
@@ -117,7 +121,8 @@ namespace Json_Client_Form
             parent.appendOutputDisplay("Sent " + bytesSent + " bytes to server");
 
             // Signal that all bytes have been sent.
-            sendDone.Set();
+            //sendDone.Set();
+            shutdownClient(client);
         } catch (Exception e) {
             Console.WriteLine(e.ToString());
         }

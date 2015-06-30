@@ -17,6 +17,7 @@ namespace Json_Client_Form
 
         
         private Vitals clientData;
+        private string jstringmaster;
 
         public ApplicationInterface()
         {
@@ -45,6 +46,9 @@ namespace Json_Client_Form
                     {
                         //get json string from file stream
                         jstring = Jlib.getJStringFromStream(fileStream);
+
+                        jstringmaster = jstring;
+                        
                         //create new Vitals object from jstring
                         clientData = new Vitals(jstring);
                         //populate form fields and chart with clientData
@@ -101,9 +105,11 @@ namespace Json_Client_Form
 
             //start client
             if (clientData != null) 
-            {
-                AsyncClient client = new AsyncClient(this);
-                client.StartClient(ipentry, Jlib.toJson(clientData));
+            {                
+                string jstring = Jlib.toJson(clientData);
+                AsyncClient client = new AsyncClient(this, jstring);
+                appendOutputDisplay(jstring.Length.ToString());
+                client.StartClient(ipentry);
             }          
         }
 
