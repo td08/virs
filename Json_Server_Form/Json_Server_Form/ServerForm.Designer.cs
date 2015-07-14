@@ -103,7 +103,7 @@
             this.ClientSize = new System.Drawing.Size(517, 417);
             this.Controls.Add(this.OpenFileButton);
             this.Controls.Add(this.outputDisplay);
-            this.Controls.Add(this.stopButton);
+            //this.Controls.Add(this.stopButton);
             this.Controls.Add(this.localStartButton);
             this.Controls.Add(this.ipLabel);
             this.Controls.Add(this.startButton);

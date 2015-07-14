@@ -91,7 +91,7 @@
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(531, 300);
+            this.chart1.Size = new System.Drawing.Size(662, 300);
             this.chart1.TabIndex = 3;
             this.chart1.Text = "chart1";
             // 
@@ -109,7 +109,7 @@
             // logTimeLabel
             // 
             this.logTimeLabel.AutoSize = true;
-            this.logTimeLabel.Location = new System.Drawing.Point(258, 154);
+            this.logTimeLabel.Location = new System.Drawing.Point(198, 154);
             this.logTimeLabel.Name = "logTimeLabel";
             this.logTimeLabel.Size = new System.Drawing.Size(0, 20);
             this.logTimeLabel.TabIndex = 5;
@@ -134,7 +134,6 @@
             this.outputDisplay.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.outputDisplay.Size = new System.Drawing.Size(246, 80);
             this.outputDisplay.TabIndex = 7;
-            this.outputDisplay.Text += "Status\r\n------------\r\n";
             // 
             // ApplicationInterface
             // 

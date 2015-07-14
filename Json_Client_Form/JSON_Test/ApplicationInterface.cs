@@ -155,6 +155,10 @@ namespace Json_Client_Form
         //function to add data points to chart series
         private void addEKG(double[] ekg)
         {
+            foreach (var series in this.chart1.Series)
+            {
+                series.Points.Clear();
+            }
             foreach (double pt in ekg)
             {
                 this.chart1.Series[0].Points.Add(pt);

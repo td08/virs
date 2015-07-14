@@ -45,7 +45,7 @@ namespace Json_Server_Form
 
         private void stopButton_Click(object sender, EventArgs e)
         {
-            appendOutputDisplay("test");
+            //appendOutputDisplay("test");
         }
 
         private void OpenFileButton_Click(object sender, EventArgs e)

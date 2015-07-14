@@ -221,7 +221,7 @@ namespace Json_Server_Form
 
         private static void writeToFile(StateObject state)
         {
-            File.WriteAllText(@"C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\test.json", state.sb.ToString());
+            File.WriteAllText(@"C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\test.json", state.sb.ToString());
         }
 
     }
