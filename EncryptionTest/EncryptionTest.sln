@@ -5,6 +5,10 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionTest", "EncryptionTest\EncryptionTest.csproj", "{91339ADF-81AE-40EE-9BE5-4329E475CFE8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AES_Client", "AES_Client\AES_Client.csproj", "{C5E90987-B7F0-4BB3-A947-99CA82A00570}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AES_Server", "AES_Server\AES_Server.csproj", "{1A87D665-60AC-484C-8781-6F6E16C7D146}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{91339ADF-81AE-40EE-9BE5-4329E475CFE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91339ADF-81AE-40EE-9BE5-4329E475CFE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91339ADF-81AE-40EE-9BE5-4329E475CFE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5E90987-B7F0-4BB3-A947-99CA82A00570}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5E90987-B7F0-4BB3-A947-99CA82A00570}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5E90987-B7F0-4BB3-A947-99CA82A00570}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5E90987-B7F0-4BB3-A947-99CA82A00570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A87D665-60AC-484C-8781-6F6E16C7D146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A87D665-60AC-484C-8781-6F6E16C7D146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A87D665-60AC-484C-8781-6F6E16C7D146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A87D665-60AC-484C-8781-6F6E16C7D146}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
