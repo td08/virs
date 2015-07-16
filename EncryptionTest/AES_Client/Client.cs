@@ -26,9 +26,13 @@ namespace EncryptionTest
             // initialice the server's public key we will need it later
             serverPubKeyBlob = new byte[clientPubKeyBlob.Length];
 
+            // get server address from user
+            Console.WriteLine("Enter IP address of server: ");
+            string ip = Console.ReadLine();
+
             // connect to the server and open a stream in order to comunicate with it
             //TcpClient alice = new TcpClient("192.168.0.120", 54540);
-            TcpClient alice = new TcpClient("localhost", 54540);
+            TcpClient alice = new TcpClient(ip, 54540);
 
             var stream = alice.GetStream();
 
@@ -50,7 +54,8 @@ namespace EncryptionTest
             Console.WriteLine("Length of symmKeyBuffer: " + symmKeyBuffer.Length);
 
             // create message to encrypt
-            string test = "Howdy hello hello howdy my name is scout howdy hello! Howdy hello scout! Howdy howdy howdy hello!!!!";
+            Console.WriteLine("Enter message to encrypt: ");
+            string test = Console.ReadLine();
             byte[] message = new byte[System.Text.Encoding.UTF8.GetByteCount(test)];
             message = System.Text.Encoding.UTF8.GetBytes(test);
 
@@ -58,12 +63,11 @@ namespace EncryptionTest
             byte[] encryptedData = EncryptSymmetric(message);
             Console.WriteLine("Length of encryptedData: " + encryptedData.Length);
 
-            //send to server string containing length of encrypted message in number of bytes (up to 9999)
-            //byte[] messageLength = new byte[3]; //works
-            byte[] messageLength = new byte[4]; //having problems, encoding generating strange characters 
-            messageLength = System.Text.Encoding.UTF8.GetBytes(encryptedData.Length.ToString());
+            //send to server int containing length of encrypted message in number of byte
+            byte[] messageLength = new byte[4];    
+            messageLength = BitConverter.GetBytes(encryptedData.Length);
             stream.Write(messageLength, 0, messageLength.Length);
-            Console.WriteLine("messageLength: " + System.Text.Encoding.UTF8.GetString(messageLength));
+            Console.WriteLine("messageLength: " + BitConverter.ToInt32(messageLength, 0));
 
             // once server knows message size, send the encrypted data to the server
             stream.Write(encryptedData, 0, encryptedData.Length);
@@ -72,7 +76,6 @@ namespace EncryptionTest
             Console.WriteLine("Finished");
             Console.Read();
         }
-
 
         private static void CreateKeys()
         {
@@ -85,11 +88,11 @@ namespace EncryptionTest
 
             byte[] encryptedData = null;
 
-            using (var aliceAlgorithm = new ECDiffieHellmanCng(clientPvtKey))
-            using (CngKey bobPubKey = CngKey.Import(serverPubKeyBlob,
+            using (var clientKeyExchange = new ECDiffieHellmanCng(clientPvtKey))
+            using (CngKey serverPubKey = CngKey.Import(serverPubKeyBlob,
                   CngKeyBlobFormat.EccPublicBlob))
             {
-                byte[] symmKey = aliceAlgorithm.DeriveKeyMaterial(bobPubKey);
+                byte[] symmKey = clientKeyExchange.DeriveKeyMaterial(serverPubKey);
                 //Console.WriteLine("Alice creates this symmetric key with " +
                 //      "Bobs public key information: {0}",
                 //      Convert.ToBase64String(symmKey));
@@ -145,7 +148,7 @@ namespace EncryptionTest
 
             aes.Clear();
 
-            Console.WriteLine("Alice: message is encrypted: {0}",
+            Console.WriteLine("Encrypted message: {0}",
                   Convert.ToBase64String(encryptedData)); ;
             return encryptedData;
         }
