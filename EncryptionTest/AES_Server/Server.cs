@@ -8,6 +8,19 @@ using System.Security.Cryptography;
 using System.Net;
 using System.IO;
 
+/**********     Server Control Flow     **********
+ * 
+ * 1. Generate and store public key material
+ * 2. Wait for client connection
+ * 3. Exchange public key information with client
+ * 4. Receive unencrypted initialization vector and encrypted symmetric key from client
+ * 5. Decrypt symmetric key using IV and server private key information
+ * 6. Receive length of encrypted message from client
+ * 7. Receive encrypted message from client
+ * 8. Decrypt encrypted message using symmetric key
+ * 
+ */
+
 namespace EncryptionTest
 {
     class Server
@@ -22,7 +35,8 @@ namespace EncryptionTest
         static void Main(string[] args)
         {
             Console.WriteLine("Start in localhost mode? (y or n)");
-            string mode = Console.ReadLine();
+            //string mode = Console.ReadLine();
+            string mode = "y";
             string hostName = Dns.GetHostName();
             if (mode.Equals("y"))
                 hostName = "localhost";
@@ -171,7 +185,7 @@ namespace EncryptionTest
                 using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(symmetricKey, iv), CryptoStreamMode.Write))
                 {
                     cs.Write(cipherText, 16, cipherText.Length - 16);
-                    cs.FlushFinalBlock();
+                    //cs.FlushFinalBlock();
                 }
 
                 rawData = ms.ToArray();
@@ -180,6 +194,7 @@ namespace EncryptionTest
             aes.Clear();
 
             return System.Text.Encoding.UTF8.GetString(rawData);
+
         }
     }
 }

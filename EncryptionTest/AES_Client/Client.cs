@@ -8,6 +8,22 @@ using System.Net.Sockets;
 using System.IO;
 using System.Security.Cryptography;
 
+/**********     Client Control Flow     **********
+ * 
+ * 1. Generate and store public key material
+ * 2. Connect to server
+ * 3. Exchange public key information with server
+ * 4. Generate a random symmetric key for data exchange between client/server
+ * 5. Generate a random initialization vector for encryption
+ * 6. Encrypt the symmetric key using server public key information and IV
+ * 7. Transmit the unencrypted IV and encrypted symmetric key to the server
+ * 8. Encrypt message using randomly generated symmetric key
+ * 9. Transmit length of encrypted message to server
+ * 10. Transmit encrypted message to server
+ * 
+ */
+ 
+
 namespace EncryptionTest
 {
     class Client
@@ -42,7 +58,7 @@ namespace EncryptionTest
             // now wait to receive the server's public key
             stream.Read(serverPubKeyBlob, 0, serverPubKeyBlob.Length);
 
-            // create a random symetric key
+            // create a random 256 bit symmetric key
             symmetricKey = new byte[32];
             Random r = new Random();
             r.NextBytes(symmetricKey);
