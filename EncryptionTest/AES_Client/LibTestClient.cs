@@ -8,20 +8,21 @@ using System.Net.Sockets;
 
 namespace AES_Client
 {
-    class LibTest
+    class LibTestClient
     {
 
         static void Main(string[] args)
         {
-            AesServiceProvider myaes = new AesServiceProvider(true); //set to client mode
-
             // get server address from user
+            Console.WriteLine("Starting LibTestClient...");
             Console.WriteLine("Enter IP address of server: ");
             string ip = Console.ReadLine();
 
-            TcpClient alice = new TcpClient(ip, 54540);
+            AesServiceProvider myaes = new AesServiceProvider(true); //set to client mode
 
-            var stream = alice.GetStream();
+            TcpClient client = new TcpClient(ip, 54540);
+
+            var stream = client.GetStream();
             
             // send to the server the public key (client's public key)
             stream.Write(myaes.localPubKeyBlob, 0, myaes.localPubKeyBlob.Length);
@@ -29,7 +30,6 @@ namespace AES_Client
             // now wait to receive the server's public key
             stream.Read(myaes.remotePubKeyBlob, 0, myaes.remotePubKeyBlob.Length);
                     
-
             // Encrypt and send the symmetric key to the server using the server's public key
             byte[] symmKeyBuffer = myaes.getKeyExchangeInfo();
             stream.Write(symmKeyBuffer, 0, symmKeyBuffer.Length);
@@ -45,7 +45,7 @@ namespace AES_Client
             byte[] encryptedData = myaes.encryptData(message);
             Console.WriteLine("Length of encryptedData: " + encryptedData.Length);
 
-            //send to server int containing length of encrypted message in number of byte
+            //send to server int containing length of encrypted message in number of bytes
             byte[] messageLength = new byte[4];
             messageLength = BitConverter.GetBytes(encryptedData.Length);
             stream.Write(messageLength, 0, messageLength.Length);

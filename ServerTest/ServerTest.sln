@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncServer", "AsyncServer\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncClient", "AsyncClient\AsyncClient.csproj", "{57B48254-FD6C-4B05-AC15-C9BD67C354FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "multiThreadServer", "multiThreadServer\multiThreadServer.csproj", "{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{57B48254-FD6C-4B05-AC15-C9BD67C354FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57B48254-FD6C-4B05-AC15-C9BD67C354FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57B48254-FD6C-4B05-AC15-C9BD67C354FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

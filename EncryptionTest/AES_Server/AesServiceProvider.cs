@@ -170,7 +170,7 @@ namespace AES_Server
                 Console.WriteLine(e.StackTrace);
                 return cipherText;     // returns null
             }
-
+        
             return cipherText;
         }
 

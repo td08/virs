@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 using System.Net.Sockets;
 
@@ -10,50 +11,35 @@ namespace ClientTest
 {
     class Client
     {
-        public Client()
-        {
-            //this.MinimizeBox = false;
-        }
+        static TcpClient client;
 
-	    static void Connect(string serverIP, string message)
+	    static void Connect(string serverIP)
         {
-                string output = "";
-
                 try
                 {
-                    // Create a TcpClient. 
-                    // The client requires a TcpServer that is connected 
-                    // to the same address specified by the server and port 
-                    // combination.
-                    Int32 port = 13;
-                    TcpClient client = new TcpClient(serverIP, port);
+                    TcpClient client = new TcpClient(serverIP, 8888);
+
+                    NetworkStream stream = client.GetStream();
 
                     // Translate the passed message into ASCII and store it as a byte array.
-                    Byte[] data = new Byte[256];
+                    Byte[] data = new Byte[20];
+                    string message = "Testing 1, 2, 3...";
                     data = System.Text.Encoding.ASCII.GetBytes(message);
-
-                    // Get a client stream for reading and writing. 
-                    // Stream stream = client.GetStream();
-                    NetworkStream stream = client.GetStream();
 
                     // Send the message to the connected TcpServer. 
                     stream.Write(data, 0, data.Length);
 
-                    output = "Sent: " + message;
-                    Console.WriteLine(output);
+                    Console.WriteLine("Sent: " + message);
 
                     // Buffer to store the response bytes.
                     data = new Byte[256];
-
-                    // String to store the response ASCII representation.
-                    String responseData = String.Empty;
-
+                    Console.WriteLine("ReceiveBufferSize: " + client.ReceiveBufferSize);
                     // Read the first batch of the TcpServer response bytes.
                     Int32 bytes = stream.Read(data, 0, data.Length);
-                    responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                    output = "Received: " + responseData;
-                    Console.WriteLine(output);
+                    Console.WriteLine("Received: " + System.Text.Encoding.ASCII.GetString(data));
 
+                    Console.WriteLine("Finished!");
+                    Console.ReadLine();
                     // Close everything.
                     stream.Close();
                     client.Close();
@@ -62,26 +48,81 @@ namespace ClientTest
                 }
                 catch (ArgumentNullException e)
                 {
-                    output = "ArgumentNullException: " + e;
-                    Console.WriteLine(output);
+                    Console.WriteLine("ArgumentNullException: " + e);
                     Console.Read();
                 }
                 catch (SocketException e)
                 {
-                    output = "SocketException: " + e.ToString();
-                    Console.WriteLine(output);
+                    Console.WriteLine("SocketException: " + e.ToString());
                     Console.Read();
                 }
             }
 
+        private static void connectToServer(string serverIP)
+        {
+            client = new TcpClient(serverIP, 8888);
+            Thread sendThread = new Thread(send);
+            Thread receiveThread = new Thread(receive);
+            sendThread.Start();
+            receiveThread.Start();
+        }
+
+        private static void receive()
+        {
+            byte[] bytesFrom = new byte[64];
+            string dataFromClient = null;
+
+            while ((true))
+            {
+                try
+                {
+                    //Console.WriteLine("Receiving...");
+                    NetworkStream networkStream = client.GetStream();
+                    networkStream.Read(bytesFrom, 0, 20);
+
+                    dataFromClient = System.Text.Encoding.ASCII.GetString(bytesFrom);
+                    Console.WriteLine("From server" + ": " + dataFromClient);
+                    Array.Clear(bytesFrom, 0, bytesFrom.Length);
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(" >> " + ex.ToString());
+                }
+            }
+        }
+
+        private static void send()
+        {
+            Byte[] sendBytes = null;
+
+            while ((true))
+            {
+                try
+                {
+                    NetworkStream networkStream = client.GetStream();
+
+                    //Console.WriteLine("Sending...");
+                    Console.Write(">> ");
+                    string serverResponse = Console.ReadLine();
+                    sendBytes = Encoding.ASCII.GetBytes(serverResponse);
+                    networkStream.Write(sendBytes, 0, sendBytes.Length);
+                    networkStream.Flush();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(" >> " + ex.ToString());
+                }
+            }
+        }
+
 	    static void Main()
         {
+            Console.WriteLine("Starting client...\nEnter IP Address: ");
             // In this code example, use a hard-coded 
             // IP address and message. 
-            string serverIP = "localhost";
-            //string message = "Hello";
-            string message = "que?";
-            Connect(serverIP, message);
+            string serverIP = Console.ReadLine();
+            connectToServer(serverIP);
         }
     }
 }
