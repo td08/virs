@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncClient", "AsyncClient\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "multiThreadServer", "multiThreadServer\multiThreadServer.csproj", "{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerFormTest", "ServerFormTest\ServerFormTest.csproj", "{FD1E622D-CD2D-409F-AF63-23E560282894}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C9BDFBD-D2F7-40E7-BD73-A4B25AE9F421}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD1E622D-CD2D-409F-AF63-23E560282894}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD1E622D-CD2D-409F-AF63-23E560282894}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD1E622D-CD2D-409F-AF63-23E560282894}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD1E622D-CD2D-409F-AF63-23E560282894}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

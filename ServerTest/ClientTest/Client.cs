@@ -62,9 +62,9 @@ namespace ClientTest
         {
             client = new TcpClient(serverIP, 8888);
             Thread sendThread = new Thread(send);
-            Thread receiveThread = new Thread(receive);
+            //Thread receiveThread = new Thread(receive);
             sendThread.Start();
-            receiveThread.Start();
+            //receiveThread.Start();
         }
 
         private static void receive()
@@ -95,19 +95,18 @@ namespace ClientTest
         private static void send()
         {
             Byte[] sendBytes = null;
+            NetworkStream networkStream = client.GetStream();
 
             while ((true))
             {
                 try
                 {
-                    NetworkStream networkStream = client.GetStream();
-
-                    //Console.WriteLine("Sending...");
                     Console.Write(">> ");
                     string serverResponse = Console.ReadLine();
                     sendBytes = Encoding.ASCII.GetBytes(serverResponse);
                     networkStream.Write(sendBytes, 0, sendBytes.Length);
                     networkStream.Flush();
+                    Array.Clear(sendBytes, 0, sendBytes.Length);
                 }
                 catch (Exception ex)
                 {
