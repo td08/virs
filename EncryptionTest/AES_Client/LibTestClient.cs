@@ -20,7 +20,7 @@ namespace AES_Client
 
             AesServiceProvider myaes = new AesServiceProvider(true); //set to client mode
 
-            TcpClient client = new TcpClient(ip, 54540);
+            TcpClient client = new TcpClient(ip, 8888);
 
             var stream = client.GetStream();
             

@@ -32,7 +32,7 @@ using System.IO;
  * 
  */
 
-namespace AES_Server
+namespace AES_Client
 {
     class AesServiceProvider
     {
