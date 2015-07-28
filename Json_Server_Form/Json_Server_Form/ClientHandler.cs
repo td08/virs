@@ -87,7 +87,7 @@ namespace Json_Server_Form
             {
                 try
                 {
-                    receiveEncryptedData(client, encryptedData);    // receive encrypted data from client
+                    encryptedData = receiveEncryptedData(client);    // receive encrypted data from client
                     decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
                     dataFromClient = System.Text.Encoding.UTF8.GetString(decryptedData);
                     parentForm.appendOutputDisplay("Client " + client.clientId + " : " + dataFromClient);
@@ -132,12 +132,13 @@ namespace Json_Server_Form
         }
 
         // method called to receive and store encrypted data from client into specified byte array
-        private void receiveEncryptedData(ClientObject c, byte[] buffer)
+        private byte[] receiveEncryptedData(ClientObject c)
         {
             Array.Clear(c.aes.cipherLength, 0, c.aes.cipherLength.Length);      // clear cipherLength
             c.stream.Read(c.aes.cipherLength, 0, c.aes.cipherLength.Length);    // receive encrypted data length
-            buffer = new byte[BitConverter.ToInt32(c.aes.cipherLength, 0)];     // instantiate encrypted data buffer
-            c.stream.Read(buffer, 0, buffer.Length);                            // receive encrypted data
+            byte[] data = new byte[BitConverter.ToInt32(c.aes.cipherLength, 0)];     // instantiate encrypted data buffer
+            c.stream.Read(data, 0, data.Length);                            // receive encrypted data
+            return data;
         }
     }
 

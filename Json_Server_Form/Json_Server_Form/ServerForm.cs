@@ -14,7 +14,7 @@ namespace Json_Server_Form
 {
     public partial class ServerForm : Form
     {
-        private ServerHelper helper;
+        private ServerHelper helper;    // local ServerHelper instance variable
 
         public ServerForm()
         {
