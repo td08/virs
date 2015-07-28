@@ -27,7 +27,7 @@ namespace Json_Server_Form
         private List<ClientObject> clientList;          // array list used to hold active clients
         public bool closeHandler;                       // bool flag to signal thread shutdown
 
-        // ClientHandler cnstructor
+        // ClientHandler constructor
         public ClientHandler(TcpListener server, object obj)
         {
             this.serverSocket = server;
@@ -76,19 +76,22 @@ namespace Json_Server_Form
         private void receiveFromClient(Object threadContext)
         {
             ClientObject client = (ClientObject)threadContext;
-
-            byte[] bytesFrom = new byte[1024];
+            byte[] encryptedData = null;
+            byte[] decryptedData = null;
             string dataFromClient = null;
             bool exceptionOccurred = false;
+
+            performKeyExchange(client);     // get sym key for encrypted communications with client
 
             while (client.socket.Connected)
             {
                 try
                 {
-                    client.stream.Read(bytesFrom, 0, bytesFrom.Length);
-                    dataFromClient = System.Text.Encoding.ASCII.GetString(bytesFrom);
+                    receiveEncryptedData(client, encryptedData);    // receive encrypted data from client
+                    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
+                    dataFromClient = System.Text.Encoding.UTF8.GetString(decryptedData);
                     parentForm.appendOutputDisplay("Client " + client.clientId + " : " + dataFromClient);
-                    Array.Clear(bytesFrom, 0, bytesFrom.Length);
+                    Array.Clear(decryptedData, 0, decryptedData.Length);
                 }
                 catch (SocketException s)
                 {
@@ -118,6 +121,24 @@ namespace Json_Server_Form
                 client.Shutdown();
             }
         }
+
+        // method called to perform symmetric key exchange with client
+        private void performKeyExchange(ClientObject c)
+        {
+            c.stream.Read(c.aes.remotePubKeyBlob, 0, c.aes.remotePubKeyBlob.Length);        // receive client pub key
+            c.stream.Write(c.aes.localPubKeyBlob, 0, c.aes.localPubKeyBlob.Length);         // send server pub key
+            c.stream.Read(c.aes.symmetricKeyBuffer, 0, c.aes.symmetricKeyBuffer.Length);    // receive encrypted sym key
+            c.aes.addSymmetricKey();                                                        // decrypt sym key
+        }
+
+        // method called to receive and store encrypted data from client into specified byte array
+        private void receiveEncryptedData(ClientObject c, byte[] buffer)
+        {
+            Array.Clear(c.aes.cipherLength, 0, c.aes.cipherLength.Length);      // clear cipherLength
+            c.stream.Read(c.aes.cipherLength, 0, c.aes.cipherLength.Length);    // receive encrypted data length
+            buffer = new byte[BitConverter.ToInt32(c.aes.cipherLength, 0)];     // instantiate encrypted data buffer
+            c.stream.Read(buffer, 0, buffer.Length);                            // receive encrypted data
+        }
     }
 
     class ClientObject
@@ -126,6 +147,7 @@ namespace Json_Server_Form
         public NetworkStream stream { get; private set; }   // client data stream
         public int clientId { get; private set; }           // id number used for tracking clients
         public bool isOpen { get; private set; }            // bool used to know if client is active
+        public AesServiceProvider aes { get; private set; } // AesServiceProvider object for cryptographic operations
 
         // clientObject constructor
         public ClientObject(TcpClient c, int id)
@@ -134,6 +156,7 @@ namespace Json_Server_Form
             this.clientId = id;
             this.stream = c.GetStream();
             this.isOpen = true;
+            this.aes = new AesServiceProvider(false);   // create new ASP object with server context
         }
 
         // method used to manually close client connection

@@ -8,31 +8,31 @@ using System.IO;
 
 /**********     Client Control Flow     **********
  * 
- * 1. Generate and store public/private key material
+ * 1. Generate and store public/private key material    (generateKeys)
  * 2. Connect to server
- * 3. Exchange public key information with server
- * 4. Generate a random symmetric key for data exchange between client/server
- * 5. Generate a random initialization vector for encryption
- * 6. Encrypt the symmetric key using server public key information and IV
+ * 3. Exchange public key information with server   (get localPubKeyBlob, set remotePubKeyBlob)
+ * 4. Generate a random symmetric key for data exchange between client/server   (generateSymmetricKey, done in constructor)
+ * 5. Generate a random initialization vector for encryption    (getKeyExchangeInfo)
+ * 6. Encrypt the symmetric key using server public key information and IV      (getKeyExchangeInfo)
  * 7. Transmit the unencrypted IV and encrypted symmetric key to the server
- * 8. Encrypt message using randomly generated symmetric key
- * 9. Transmit length of encrypted message to server
+ * 8. Encrypt message using randomly generated symmetric key    (encryptData)
+ * 9. Transmit length of encrypted message to server    (using cipherLength)
  * 10. Transmit encrypted message to server
  * 
  **********     Server Control Flow     **********
  * 
- * 1. Generate and store public/private key material
+ * 1. Generate and store public/private key material    (generateKeys)
  * 2. Wait for client connection
- * 3. Exchange public key information with client
- * 4. Receive unencrypted initialization vector and encrypted symmetric key from client
- * 5. Decrypt symmetric key using IV and server private key information
+ * 3. Exchange public key information with client   (get localPubKeyBlob, set remotePubKeyBlob)
+ * 4. Receive unencrypted initialization vector and encrypted symmetric key from client     (set symmetricKeyBuffer)
+ * 5. Decrypt symmetric key using IV and server private key information     (addSymmetricKey)
  * 6. Receive length of encrypted message from client
  * 7. Receive encrypted message from client
- * 8. Decrypt encrypted message using symmetric key
+ * 8. Decrypt encrypted message using symmetric key     (decryptData)
  * 
  */
 
-namespace AES_Server
+namespace Json_Server_Form
 {
     class AesServiceProvider
     {
@@ -42,17 +42,21 @@ namespace AES_Server
         public byte[] remotePubKeyBlob { get; set; }       // remote public key blob 
         public byte[] symmetricKey { get; private set; }          // symmetric key array
         public byte[] symmetricKeyBuffer { get; set; }      // symmetric key buffer used during addSymmetricKey
+        public byte[] cipherLength { get; set; }   // array used to express encrypted message length in bytes
 
+        // AesServiceProvider constructor
         public AesServiceProvider(Boolean isClient)
         {
             aes = new AesCryptoServiceProvider();
             aes.Mode = CipherMode.CBC;          // set cipher mode to cipher block chaining
             aes.Padding = PaddingMode.PKCS7;    // set padding mode to PKCS7
             generateKeys();
-            if (isClient)                       // if argument is passed as true, generate a random key for client
-                generateSymmetricKey();
-            else
-                symmetricKeyBuffer = new byte[64];  // else instantiate symmetricKeyBuffer
+            symmetricKeyBuffer = new byte[64];  // instantiate symmetricKeyBuffer for storing keyExchangeInfo
+            cipherLength = new byte[4];     // instantiate cipherLength array to hold a 32 bit intger
+            if (isClient)                       // if argument is passed as true, perform client context operations
+            {
+                generateSymmetricKey();                
+            }
         }
 
         // generates the public and private key information necessary for the Diffie-Hellman key exchange mechanism
@@ -69,14 +73,11 @@ namespace AES_Server
             symmetricKey = new byte[32];        // initialize symmetricKey buffer to 32 bytes (256 bits)
             Random r = new Random();
             r.NextBytes(symmetricKey);
-            Console.WriteLine("Symmetric Key: " + System.Text.Encoding.UTF8.GetString(symmetricKey));
         }
 
         // returns keyExchangeInfo containing the unencrypted IV and encrypted symmetric key for the key exchange mechanism
         public byte[] getKeyExchangeInfo()
         {
-            byte[] keyExchangeInfo = null;
-
             try
             {
                 using (var keyExchange = new ECDiffieHellmanCng(localPvtKey))
@@ -89,10 +90,10 @@ namespace AES_Server
                     using (MemoryStream ms = new MemoryStream())
                     using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(aes.Key, aes.IV), CryptoStreamMode.Write))
                     {
-                        ms.Write(aes.IV, 0, aes.IV.Length);
-                        cs.Write(symmetricKey, 0, symmetricKey.Length);
+                        ms.Write(aes.IV, 0, aes.IV.Length);     // write unencrypted IV to stream
+                        cs.Write(symmetricKey, 0, symmetricKey.Length);     // write encrypted symmetricKey to stream
                         cs.FlushFinalBlock();   // ensures the ms buffer is updated with all data from the cryptostream
-                        keyExchangeInfo = ms.ToArray();
+                        symmetricKeyBuffer = ms.ToArray();  // store keyExchangeInfo in symmetricKeyBuffer
                     }
                 }
             }
@@ -101,10 +102,10 @@ namespace AES_Server
             {
                 Console.WriteLine(e.ToString());
                 Console.WriteLine(e.StackTrace);
-                return keyExchangeInfo;     // returns null
+                return symmetricKeyBuffer;     // returns null
             }
 
-            return keyExchangeInfo;
+            return symmetricKeyBuffer;
         }
 
         // decrypts and adds the 256-bit symmetric key to be used for all further encrypted communications
@@ -170,7 +171,9 @@ namespace AES_Server
                 Console.WriteLine(e.StackTrace);
                 return cipherText;     // returns null
             }
-        
+
+            Array.Clear(cipherLength, 0, cipherLength.Length);      // clears cipherLength of old data  
+            cipherLength = BitConverter.GetBytes(cipherText.Length);    // sets cipherLength with length of cipherText in bytes        
             return cipherText;
         }
 
@@ -178,7 +181,6 @@ namespace AES_Server
         public byte[] decryptData(byte[] cipherText)
         {
             byte[] data = null;
-
             try
             {
                 int nBytes = aes.BlockSize >> 3;
