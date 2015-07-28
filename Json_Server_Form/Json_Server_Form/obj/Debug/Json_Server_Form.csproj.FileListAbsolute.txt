@@ -8,6 +8,4 @@ C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\obj\Debu
 C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\obj\Debug\Json_Server_Form.exe
 C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\obj\Debug\Json_Server_Form.pdb
 C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\bin\Debug\Newtonsoft.Json.dll
-C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\bin\Debug\Newtonsoft.Json.pdb
-C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\obj\Debug\Json_Server_Form.ServerForm.resources

@@ -14,6 +14,8 @@ namespace Json_Server_Form
 {
     public partial class ServerForm : Form
     {
+        private ServerHelper helper;
+
         public ServerForm()
         {
             InitializeComponent();
@@ -27,24 +29,38 @@ namespace Json_Server_Form
 
         private void startButton_Click(object sender, EventArgs e)
         {
-            localStartButton.Enabled = false;
+            // enable and disable respective controls
+            this.startButton.Enabled = false;
+            this.localStartButton.Enabled = false;
+            this.stopButton.Enabled = true;
+
+            helper = new ServerHelper(this, false);    // start without localhost
 
             //start server without localhost
-            AsyncServer server = new AsyncServer(this);
-            server.StartListening(false);
+            //AsyncServer server = new AsyncServer(this);
+            //server.StartListening(false);
         }
 
         private void localStartButton_Click(object sender, EventArgs e)
         {
-            startButton.Enabled = false;
+            // enable and disable respective controls
+            this.localStartButton.Enabled = false;
+            this.startButton.Enabled = false;
+            this.stopButton.Enabled = true;
+
+            helper = new ServerHelper(this, true);    // start with localhost
 
             //start server using localhost
-            AsyncServer server = new AsyncServer(this);
-            server.StartListening(true);
+            //AsyncServer server = new AsyncServer(this);
+            //server.StartListening(true);
         }
 
         private void stopButton_Click(object sender, EventArgs e)
         {
+            this.startButton.Enabled = true;
+            this.localStartButton.Enabled = true;
+
+            helper.stopServer.Set();
             //appendOutputDisplay("test");
         }
 
