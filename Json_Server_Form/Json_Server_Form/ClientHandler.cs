@@ -89,8 +89,12 @@ namespace Json_Server_Form
                 {
                     encryptedData = receiveEncryptedData(client);    // receive encrypted data from client
                     decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
+                    //processData(decryptedData);
+
+                    // display received data from client
                     dataFromClient = System.Text.Encoding.UTF8.GetString(decryptedData);
                     parentForm.appendOutputDisplay("Client " + client.clientId + " : " + dataFromClient);
+
                     Array.Clear(decryptedData, 0, decryptedData.Length);
                 }
                 catch (SocketException s)
@@ -140,6 +144,12 @@ namespace Json_Server_Form
             c.stream.Read(data, 0, data.Length);                            // receive encrypted data
             return data;
         }
+
+        // method called to operate on received data from client and stores to a local directory
+        private void processData()
+        {
+
+        }
     }
 
     class ClientObject
@@ -163,6 +173,7 @@ namespace Json_Server_Form
         // method used to manually close client connection
         public void Shutdown()
         {
+            this.aes.releaseResources();
             this.socket.Close();
             this.isOpen = false;
         }

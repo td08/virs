@@ -23,7 +23,8 @@ namespace Json_Server_Form
 
         //Delegates
 
-        private delegate void SetTextCallback(string text);
+        private delegate void setTextCallback(string text);
+        private delegate void startEnable(); 
 
         //Button Controls
 
@@ -57,11 +58,8 @@ namespace Json_Server_Form
 
         private void stopButton_Click(object sender, EventArgs e)
         {
-            this.startButton.Enabled = true;
-            this.localStartButton.Enabled = true;
-
             helper.stopServer.Set();
-            //appendOutputDisplay("test");
+            setIpLabel(null);
         }
 
         private void OpenFileButton_Click(object sender, EventArgs e)
@@ -97,18 +95,20 @@ namespace Json_Server_Form
             }
         }
 
-        //Label Controls
+        // ipLabel Controls
 
         public void setIpLabel(string text)
         {
             this.ipLabel.Text = "IP Address: " + text;
         }
 
+        // outputDisplay Controls
+
         public void appendOutputDisplay(string text)
         {
             if (this.outputDisplay.InvokeRequired)
             {
-                SetTextCallback d = new SetTextCallback(appendOutputDisplay);
+                setTextCallback d = new setTextCallback(appendOutputDisplay);
                 this.Invoke(d, new string[] { text });
             }
             else
@@ -116,6 +116,24 @@ namespace Json_Server_Form
                 this.outputDisplay.AppendText(text);
                 this.outputDisplay.AppendText(System.Environment.NewLine);
             }           
+        }
+
+        // Button controls
+
+        public void enableStartButtons()
+        {
+            if (this.startButton.InvokeRequired | this.localStartButton.InvokeRequired)
+            {
+                startEnable s = new startEnable(enableStartButtons);
+                this.Invoke(s);
+            }
+            else
+            {
+                if (!startButton.Enabled)
+                    this.startButton.Enabled = true;
+                if (!localStartButton.Enabled)
+                    this.localStartButton.Enabled = true;
+            }            
         }
 
         private string displayData(Vitals data)

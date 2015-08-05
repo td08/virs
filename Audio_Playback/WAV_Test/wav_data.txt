@@ -1,0 +1,15 @@
+steth.wav 	|	test.wav
+RIFF			RIFF
+94038 (16F56)	320038 (4E226)
+WAVEfmt			WAVEfmt
+16				16
+1				1				// format tag (2 bytes)
+1				1 				// num Channels (2 bytes)
+11000 (2AF8)	16000 (3E80)	// sample rate (4 bytes)
+22000 (55F0)	32000 (7D00)	// avg bytes/sec (4 bytes)
+2 				2 				// block align (2 bytes)
+16 				16				// bits per sample (2 bytes)
+data			data
+94002 (16F32)	320002 (4E202)
+
+				

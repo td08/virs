@@ -33,3 +33,5 @@ C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_
 C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_Client_Form.ApplicationInterface.resources
 C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_Client_Form.csproj.GenerateResource.Cache
 C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\obj\Debug\Json_Client_Form.InputBox.resources
+C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\bin\Debug\Newtonsoft.Json.pdb
+C:\Users\Trevor\Documents\GitHub\virs\Json_Client_Form\JSON_Test\bin\Debug\Newtonsoft.Json.xml

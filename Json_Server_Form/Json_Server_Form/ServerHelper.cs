@@ -61,6 +61,8 @@ namespace Json_Server_Form
             clientHandlerThread.Join(); // join clientHandler thread with socketHandler thread
             serverSocket.Stop();        // stop TcpListener
 
+            parentForm.enableStartButtons();
+
             parentForm.appendOutputDisplay("Server stopped!");      // finished with server operations. Server must now be manually restarted
         }
 
@@ -77,7 +79,8 @@ namespace Json_Server_Form
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork) // if IPv4 address found, set ipAddress
                 {
-                    ipAddress = ip;                           
+                    ipAddress = ip;
+                    parentForm.setIpLabel(ipAddress.ToString());       
                 }
             }
         }        
