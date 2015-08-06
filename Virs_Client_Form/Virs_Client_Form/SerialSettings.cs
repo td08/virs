@@ -15,8 +15,8 @@ namespace Virs_Client_Form
         private bool firstLoad = true;  // bool indicating if form has been previously displayed
 
         public string baud { get { return this.baudSelect.Text; } }
-        public string dataBit { get { return this.dataBitSelect.Text; } }
-        public string stopBit { get { return this.stopBitSelect.Text; } }
+        public string dataBits { get { return this.dataBitSelect.Text; } }
+        public string stopBits { get { return this.stopBitSelect.Text; } }
         public string parity { get { return this.paritySelect.Text; } }
         public string flow { get { return this.flowControlSelect.Text; } }
 
@@ -51,9 +51,9 @@ namespace Virs_Client_Form
             this.dataBitSelect.Text = this.dataBitSelect.Items[1].ToString(); // default to 8
         
             // add stop bits
-            this.stopBitSelect.Items.Add(1);
-            this.stopBitSelect.Items.Add(1.5);
-            this.stopBitSelect.Items.Add(2);
+            this.stopBitSelect.Items.Add("One");
+            this.stopBitSelect.Items.Add("OnePointFive");
+            this.stopBitSelect.Items.Add("Two");
             this.stopBitSelect.Text = this.stopBitSelect.Items[0].ToString(); // default to 1
         
             // add parity
@@ -69,14 +69,21 @@ namespace Virs_Client_Form
             this.flowControlSelect.Items.Add("XOnXOff");
             this.flowControlSelect.Items.Add("RequestToSend");
             this.flowControlSelect.Items.Add("RequestToSendXOnXOff");
-            this.flowControlSelect.Text = this.flowControlSelect.Items[0].ToString(); // default to none
-        
-        
+            this.flowControlSelect.Text = this.flowControlSelect.Items[0].ToString(); // default to none       
         }
 
         private void okButton_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void defaultButton_Click(object sender, EventArgs e)
+        {
+            this.baudSelect.Text = this.baudSelect.Items[9].ToString(); // default to 115200
+            this.dataBitSelect.Text = this.dataBitSelect.Items[1].ToString(); // default to 8
+            this.stopBitSelect.Text = this.stopBitSelect.Items[0].ToString(); // default to 1
+            this.paritySelect.Text = this.paritySelect.Items[0].ToString(); // default to none
+            this.flowControlSelect.Text = this.flowControlSelect.Items[0].ToString(); // default to none
         }
     }
 }
