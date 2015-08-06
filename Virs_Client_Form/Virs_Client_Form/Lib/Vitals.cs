@@ -13,11 +13,13 @@ namespace Virs_Client_Form
         public int pulse { get; set; }
         public int[] bp { get; set; }
         public int[] steth { get; set; }
+        public bool[] fileChecks { get; set; }
         //public String logTime { get; set; }
         
 
-        public Vitals()
+        public Vitals(bool[] checks)
         {
+            this.fileChecks = checks;
             //this.temp = Jlib.getTemp(jstring);
             //this.heart = Jlib.getHR(jstring);
             //this.bp = Jlib.getBP(jstring);

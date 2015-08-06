@@ -14,6 +14,7 @@ namespace Virs_Client_Form
 {
     public partial class clientFormMain : Form
     {
+        // constructor
         public clientFormMain()
         {
             InitializeComponent();
@@ -68,7 +69,8 @@ namespace Virs_Client_Form
         // method used to call associated processing methods if relevant data is available
         private void processFiles(bool[] checks, string[] names)
         {
-            Vitals clientData = new Vitals();
+            Vitals clientData = new Vitals(checks); // create new instance of client data with file checks and available file paths
+
             this.debugLabel.Text = "Processing";
             if (checks[0])
                 clientData.steth = processStethFile(names[0]);
@@ -79,8 +81,8 @@ namespace Virs_Client_Form
             if (checks[3])
                 clientData.temp = processTempFile(names[3]);
 
-            populate(checks, clientData);
-            this.debugLabel.Text = clientData.temp.ToString();
+            populateList(checks, clientData);
+            this.debugLabel.Text = Application.StartupPath;
         }
 
         // method called to read and store raw stethoscope audio data from the specified file
@@ -173,7 +175,7 @@ namespace Virs_Client_Form
         }
 
         // method called to populate fields of dataViewList with current clientData object
-        private void populate(bool[] checks, Vitals clientData)
+        private void populateList(bool[] checks, Vitals clientData)
         {
             // populate pulse
             if (checks[1])
@@ -182,6 +184,12 @@ namespace Virs_Client_Form
                 this.dataViewList.Items[1].SubItems.Add(clientData.bp[0].ToString() + "/" + clientData.bp[1].ToString());
             if (checks[3])
                 this.dataViewList.Items[2].SubItems.Add(clientData.temp.ToString());
+        }
+
+        private void serialConnectButton_Click(object sender, EventArgs e)
+        {
+            SerialController sControl = new SerialController();
+            sControl.ShowDialog();
         }
 
 

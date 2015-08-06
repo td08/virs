@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("Heart Rate");
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem("Blood Pressure");
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem("Temperature");
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Heart Rate");
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Blood Pressure");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Temperature");
             this.importFileButton = new System.Windows.Forms.Button();
             this.saveAsButton = new System.Windows.Forms.Button();
             this.dataViewList = new System.Windows.Forms.ListView();
@@ -38,6 +38,7 @@
             this.dataValueColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.debugLabel = new System.Windows.Forms.Label();
             this.debugCheckbox = new System.Windows.Forms.CheckBox();
+            this.serialConnectButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // importFileButton
@@ -66,9 +67,9 @@
             this.dataKeyColumn,
             this.dataValueColumn});
             this.dataViewList.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem7,
-            listViewItem8,
-            listViewItem9});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3});
             this.dataViewList.Location = new System.Drawing.Point(270, 41);
             this.dataViewList.Name = "dataViewList";
             this.dataViewList.Scrollable = false;
@@ -89,7 +90,7 @@
             // debugLabel
             // 
             this.debugLabel.AutoSize = true;
-            this.debugLabel.Location = new System.Drawing.Point(270, 213);
+            this.debugLabel.Location = new System.Drawing.Point(12, 231);
             this.debugLabel.Name = "debugLabel";
             this.debugLabel.Size = new System.Drawing.Size(80, 20);
             this.debugLabel.TabIndex = 3;
@@ -106,16 +107,28 @@
             this.debugCheckbox.TabIndex = 4;
             this.debugCheckbox.UseVisualStyleBackColor = true;
             // 
+            // serialConnectButton
+            // 
+            this.serialConnectButton.Location = new System.Drawing.Point(67, 158);
+            this.serialConnectButton.Name = "serialConnectButton";
+            this.serialConnectButton.Size = new System.Drawing.Size(103, 57);
+            this.serialConnectButton.TabIndex = 5;
+            this.serialConnectButton.Text = "Connect to VIRS";
+            this.serialConnectButton.UseVisualStyleBackColor = true;
+            this.serialConnectButton.Click += new System.EventHandler(this.serialConnectButton_Click);
+            // 
             // clientFormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(594, 356);
+            this.Controls.Add(this.serialConnectButton);
             this.Controls.Add(this.debugCheckbox);
             this.Controls.Add(this.debugLabel);
             this.Controls.Add(this.dataViewList);
             this.Controls.Add(this.saveAsButton);
             this.Controls.Add(this.importFileButton);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "clientFormMain";
             this.Text = "VIRS Client Manager";
             this.ResumeLayout(false);
@@ -132,6 +145,7 @@
         private System.Windows.Forms.ColumnHeader dataValueColumn;
         private System.Windows.Forms.Label debugLabel;
         private System.Windows.Forms.CheckBox debugCheckbox;
+        private System.Windows.Forms.Button serialConnectButton;
     }
 }
 

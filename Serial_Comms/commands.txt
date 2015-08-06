@@ -1,0 +1,15 @@
+help : Display list of commands
+h    : alias for help
+
+?    : alias for help
+ls   : Display list of files
+chdir: Change directory
+cd   : alias for chdir
+pwd  : Show current working directory
+cat  : Show contents of a text file
+oxi  : Run Oximeter HR Recording
+bp   : Run Bloodpressure Recording
+
+st   : Run Stethoscope Recording
+temp : Take Termerature Measurement
+oxi data.oxi
