@@ -12,12 +12,11 @@ namespace Json_Server_Form
 {
     class Jlib
     {
-
         //returns json string from data stream read from file
-        public static String getJStringFromStream(Stream s)
+        public static string getJStringFromFile(string path)
         {
-            StreamReader sr = new StreamReader(s);
-            String json = sr.ReadToEnd();
+            StreamReader sr = new StreamReader(Path.Combine(path, "data.virs"));
+            string json = sr.ReadToEnd();
             return json;
         }
 
@@ -79,10 +78,40 @@ namespace Json_Server_Form
 
         public static String toJson(Vitals obj)
         {
-           string json = JsonConvert.SerializeObject(obj, Formatting.Indented);
+            string json = JsonConvert.SerializeObject(obj, Formatting.Indented);
            return json;
         }
 
+        public static Vitals fromJson(string json)
+        {
+            Type type = typeof(Vitals);
+            Vitals v = (Vitals)JsonConvert.DeserializeObject(json, type);
+            return v;
+        }
+
+        public static void serializeVitalsToJson(string path, Vitals v)
+        {
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            JsonSerializer s = new JsonSerializer();
+            using (StreamWriter sw = File.CreateText(Path.Combine(path, "data.virs")))
+            {
+                s.Serialize(sw, v);
+            }           
+        }
+
+        public static Vitals deserializeJsonToVitals(string path)
+        {
+            Vitals v;
+            Type type = typeof(Vitals);
+            JsonSerializer s = new JsonSerializer();
+            using (StreamReader sr = new StreamReader(Path.Combine(path, "data.virs")))
+            {
+                v = (Vitals)s.Deserialize(sr, type);
+            }
+            return v;
+        }
     }
 }
 

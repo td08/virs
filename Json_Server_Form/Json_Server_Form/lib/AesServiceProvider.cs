@@ -55,7 +55,7 @@ namespace Json_Server_Form
             cipherLength = new byte[4];     // instantiate cipherLength array to hold a 32 bit intger
             if (isClient)                       // if argument is passed as true, perform client context operations
             {
-                generateSymmetricKey();                
+                generateSymmetricKey();
             }
         }
 
@@ -201,6 +201,7 @@ namespace Json_Server_Form
             {
                 Console.WriteLine(e.ToString());
                 Console.WriteLine(e.StackTrace);
+                releaseResources();
                 return data;     // returns null
             }
 

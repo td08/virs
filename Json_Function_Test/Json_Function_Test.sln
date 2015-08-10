@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Json_Function_Test", "Json_Function_Test\Json_Function_Test.csproj", "{32C19E6F-311E-492A-8E43-CBF2EF016BB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerializerTest", "SerializerTest\SerializerTest.csproj", "{6F549B11-A1D2-4184-88B8-05913B82E161}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{32C19E6F-311E-492A-8E43-CBF2EF016BB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32C19E6F-311E-492A-8E43-CBF2EF016BB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32C19E6F-311E-492A-8E43-CBF2EF016BB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F549B11-A1D2-4184-88B8-05913B82E161}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F549B11-A1D2-4184-88B8-05913B82E161}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F549B11-A1D2-4184-88B8-05913B82E161}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F549B11-A1D2-4184-88B8-05913B82E161}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

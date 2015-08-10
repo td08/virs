@@ -16,13 +16,18 @@ namespace Virs_Client_Form
     {
         private SerialSettings settings;
         private SerialPort comPort;
+        private ManualResetEvent initialResponse;
         private delegate void setTextCallback(string text);
+
+        DateTime currentDateTime;
+        string dateFormatString = "yyyyMMddHHmm";
 
         public SerialController()
         {
             InitializeComponent();
             settings = new SerialSettings();
             comPort = new SerialPort();
+            initialResponse = new ManualResetEvent(false);  // set initial reset event to false
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -82,34 +87,48 @@ namespace Virs_Client_Form
             {
                 comPort.Open();
                 appendStatusBox("Connected on " + comPort.PortName + "!" + System.Environment.NewLine);
-                connectedButtonsEnable();         
+                connectedButtonsEnable();
+                Thread.Sleep(1000);     // wait for MCU to open connection
+                currentDateTime = DateTime.Now;
+                string dateString = currentDateTime.ToString(dateFormatString);
+                comPort.Write("mkdir " + dateString);   // make directory on MCU sd card named current date
+
+                initialResponse.WaitOne();
             }
 
             catch (System.IO.IOException i)
             {
                 MessageBox.Show("Error connecting to device!\nCheck device connection!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                appendStatusBox("Connection failed!" + System.Environment.NewLine);
-            }                        
+                appendStatusBox("Connection failed!" + System.Environment.NewLine + i.Message + System.Environment.NewLine);
+            }
+
+            catch (System.UnauthorizedAccessException u)
+            {
+                MessageBox.Show("Access denied!\nPlease restart VIRS manager and reconnect device!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                appendStatusBox("Connection failed!" + System.Environment.NewLine + u.Message + System.Environment.NewLine);
+            }
         }
 
         private void dataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            appendStatusBox(comPort.ReadExisting());
+            if (initialResponse.WaitOne(0))
+                appendStatusBox(comPort.ReadExisting());
+            else initialResponse.Set();
         }
 
         private void runSteth_Click(object sender, EventArgs e)
         {
-            comPort.Write("help\r\n");
+            comPort.Write("help\r");
         }
         
         private void runPulse_Click(object sender, EventArgs e)
         {
-
+            
         }        
 
         private void runBP_Click(object sender, EventArgs e)
         {
-
+            comPort.Write("bp test\r");
         }
 
         private void runTemp_Click(object sender, EventArgs e)

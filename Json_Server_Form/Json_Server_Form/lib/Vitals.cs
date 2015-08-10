@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Virs_Client_Form
+namespace Json_Server_Form
 {
     //class that contains a set of vital information fields to be serialized into a JSON formatted data structure
     [Serializable]

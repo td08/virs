@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
-using System.Windows.Forms;
 
-namespace Virs_Client_Form
+namespace SerializerTest
 {
     class Jlib
     {
+
         //returns json string from data stream read from file
-        public static string getJStringFromFile(string path)
+        public static String getJStringFromStream(Stream s)
         {
-            StreamReader sr = new StreamReader(Path.Combine(path, "data.virs"));
-            string json = sr.ReadToEnd();
+            StreamReader sr = new StreamReader(s);
+            String json = sr.ReadToEnd();
             return json;
         }
 
@@ -82,20 +82,14 @@ namespace Virs_Client_Form
            return json;
         }
 
-        public static Vitals fromJson(string json)
-        {
-            Type type = typeof(Vitals);
-            Vitals v = (Vitals)JsonConvert.DeserializeObject(json, type);
-            return v;
-        }
-
         public static void serializeVitalsToJson(string path, Vitals v)
         {
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
             JsonSerializer s = new JsonSerializer();
-            using (StreamWriter sw = File.CreateText(Path.Combine(path, "data.virs")))
+            //using (StreamWriter sw = File.CreateText(Path.Combine(path, "data.virs")))
+            using (StreamWriter sw = new StreamWriter(Path.Combine(path, "data.virs")))
             {
                 s.Serialize(sw, v);
             }           
@@ -103,8 +97,8 @@ namespace Virs_Client_Form
 
         public static Vitals deserializeJsonToVitals(string path)
         {
-            Vitals v;
             Type type = typeof(Vitals);
+            Vitals v;
             JsonSerializer s = new JsonSerializer();
             using (StreamReader sr = new StreamReader(Path.Combine(path, "data.virs")))
             {

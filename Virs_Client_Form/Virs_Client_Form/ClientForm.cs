@@ -8,70 +8,159 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-
+using System.Media;
 
 namespace Virs_Client_Form
 {
+    //TODO implement directory enumeration method detailed in howtolistdirectories.txt
     public partial class clientFormMain : Form
     {
+        private Vitals clientData;          // currently loaded instance of clientData
+        private UserSettings settings;    // ClientSettings form instance
+        private SoundPlayer wavPlayer;      // SoundPlayer instance used to play stethoscope audio on form
+        private string importPath;          // full file path that specifies where VIRS files are located within the import context
+        private string importPathName;      // name of importPath directory; used for clientData logTime as directory name will be a datetime
+        private string openPath;            // full file path that specifies where VIRS files are located within the open context
+        private string dateFormatString = "yyyyMMddHHmm";   // string used to parse dateTime format for logTime
+        private bool isPlaying;
+
+
         // constructor
         public clientFormMain()
         {
             InitializeComponent();
+            settings = new UserSettings();    // instantiate new settings form
+            importPath = null;        // initialize values  
+            importPathName = null;    
+            openPath = null;
+            isPlaying = false;
         }
 
-        // method called when import button is clicked that allows user to browse for directory containing virs files
-        private void importFileButton_Click(object sender, EventArgs e)
+        // on clientForm load
+        private void clientFormMain_Load(object sender, EventArgs e)
         {
-            string fileDirectory = null;
-            string[] fileNames = new string[] { @"\steth4.txt", @"\pulse.txt", @"\bp.txt", @"\temp.txt" };   // file names to search for in directory
-            bool[] fileCheck = new bool[4];    // bool array that corresponds to whether the fnames exist
-
-            if (!this.debugCheckbox.Checked)
+            // adds a blank SubItem field to each Item in dataViewList to allow populateForm method to set the text for that SubItem
+            foreach (ListViewItem item in this.dataViewList.Items)
             {
+                item.SubItems.Add("");
+            }
+        }
+
+        #region Toolstrip Menu Item Methods
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog browseDirectory = new FolderBrowserDialog();
+            browseDirectory.SelectedPath = settings.path;
+            DialogResult result = browseDirectory.ShowDialog(); // browse for folder
+            if (result == DialogResult.OK)
+            {
+                openPath = browseDirectory.SelectedPath;   // get full file path
+                populateForm(openPath);
+            }
+        }
+
+        // method called when import option is clicked that allows user to browse for SD carde directory containing VIRS files
+        private void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (settings.firstName != "" & settings.lastName != "" & settings.age != "" & settings.weight != "")
+            {
+                string[] fileNames = new string[] { "steth4.sts", "pulse.oxi", "bp.sph", "temp.temp" };   // VIRS file names to search for in directory
+                bool[] fileCheck = new bool[4];    // bool array that corresponds to whether the fnames exist
+
                 FolderBrowserDialog browseDirectory = new FolderBrowserDialog();
-                DialogResult result = browseDirectory.ShowDialog();
+                DialogResult result = browseDirectory.ShowDialog(); // browse for folder
                 if (result == DialogResult.OK)
                 {
-                    fileDirectory = browseDirectory.SelectedPath;
-                }
-            }
-            else fileDirectory = @"C:\Users\Trevor\Documents\GitHub\virs\Virs_Client_Form";
+                    importPath = browseDirectory.SelectedPath;   // get full file path
+                    importPathName = Path.GetFileName(importPath);    // get name of directory for dateTime
 
-            for (int i = 0; i < fileNames.Length; i++)
+                    for (int i = 0; i < fileNames.Length; i++)
+                    {
+                        if (File.Exists(Path.Combine(importPath, fileNames[i])))
+                        {
+                            fileCheck[i] = true;   // if file exists at specified location, set fileCheck value to true
+                            fileNames[i] = (Path.Combine(importPath, fileNames[i]));    // then append directory name to file name in fNames
+                        }
+                    }
+
+                    checkFiles(fileCheck, fileNames);
+                }                
+            }
+
+            else
             {
-                if (File.Exists(fileDirectory + fileNames[i]))
-                {
-                    fileCheck[i] = true;   // if file exists at specified location, set fCheck value to true
-                    fileNames[i] = (fileDirectory + fileNames[i]);    // then append directory name to file name in fNames
-                }
-            }
-
-            checkFiles(fileCheck, fileNames);          
-
+                MessageBox.Show("Please ensure user settings pane has all fields completed before importing!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                settings.ShowDialog();
+            }              
         }
 
-        // method called to launch a dialogbox that displays if the expected files were found
-        private void checkFiles(bool[] bArray, string[] sArray)
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!bArray[0] & !bArray[1] & !bArray[2] & !bArray[3])
+            settings.ShowDialog();
+        }
+
+        private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SerialController sControl = new SerialController();
+            sControl.ShowDialog();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        #endregion
+
+        #region Button Click Methods
+
+        private void playAudioButton_Click(object sender, EventArgs e)
+        {
+            if (isPlaying)
+            {
+                wavPlayer.Stop();
+                this.playAudioButton.Text = "Play Stethoscope Audio";
+                isPlaying = false;
+            }
+            else
+            {
+                wavPlayer.Play();
+                this.playAudioButton.Text = "Stop Playing";
+                isPlaying = true;
+            }
+        }
+
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            wavPlayer.Stop();
+        }
+
+        #endregion
+
+        // method called to launch a dialogbox that displays if the expected files were found
+        private void checkFiles(bool[] checks, string[] names)
+        {
+            if (!checks[0] & !checks[1] & !checks[2] & !checks[3])
             {
                 MessageBox.Show("No VIRS files found!", "Error", MessageBoxButtons.OK);
             }
             else
             {
-                FileBrowseCheck fbc = new FileBrowseCheck(bArray);
+                FileBrowseCheck fbc = new FileBrowseCheck(checks);
                 fbc.ShowDialog();
-                processFiles(bArray, sArray);
+                processFiles(checks, names);
             }
         }
 
         // method used to call associated processing methods if relevant data is available
         private void processFiles(bool[] checks, string[] names)
         {
-            Vitals clientData = new Vitals(checks); // create new instance of client data with file checks and available file paths
+            clientData = new Vitals(checks, importPathName); // create new instance of rawClientData with file checks and available file paths
 
-            this.debugLabel.Text = "Processing";
+            string writePath = Path.Combine(settings.path, importPathName);
+
+            // give rawClientData instance data from imported files
             if (checks[0])
                 clientData.steth = processStethFile(names[0]);
             if (checks[1])
@@ -81,8 +170,27 @@ namespace Virs_Client_Form
             if (checks[3])
                 clientData.temp = processTempFile(names[3]);
 
-            populateList(checks, clientData);
-            this.debugLabel.Text = Application.StartupPath;
+            clientData.firstName = settings.firstName;
+            clientData.lastName = settings.lastName;
+            clientData.age = settings.age;
+            clientData.weight = settings.weight;
+
+            try
+            {
+                // serialize imported clientData to JSON and write to file in clientSettings path
+                Jlib.serializeVitalsToJson(writePath, clientData);
+                // build filtered wav audio file using data from clientData.steth
+                WavBuilder.generateWav(writePath, clientData.steth);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                //MessageBox.Show("Error importing files to disk!\nPlease check path directory in settings and try again!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            populateForm(writePath);
         }
 
         // method called to read and store raw stethoscope audio data from the specified file
@@ -175,22 +283,56 @@ namespace Virs_Client_Form
         }
 
         // method called to populate fields of dataViewList with current clientData object
-        private void populateList(bool[] checks, Vitals clientData)
+        private void populateForm(string path)
         {
-            // populate pulse
-            if (checks[1])
-                this.dataViewList.Items[0].SubItems.Add(clientData.pulse.ToString());
-            if (checks[2])
-                this.dataViewList.Items[1].SubItems.Add(clientData.bp[0].ToString() + "/" + clientData.bp[1].ToString());
-            if (checks[3])
-                this.dataViewList.Items[2].SubItems.Add(clientData.temp.ToString());
+            // deserialize clientData from a stored json formatted virs file
+            clientData = Jlib.deserializeJsonToVitals(path);
+
+            // disable playAudioButton in case steth audio file is not present
+            this.playAudioButton.Enabled = false;
+
+            // add stethoscope audio
+            if (clientData.fileChecks[0])
+            {
+                wavPlayer = new SoundPlayer(Path.Combine(path, "steth.wav"));
+                this.playAudioButton.Enabled = true;
+            }
+            // add pulse
+            if (clientData.fileChecks[1])
+                this.dataViewList.Items[0].SubItems[1].Text = (clientData.pulse.ToString() + " bpm");
+            // add bp
+            if (clientData.fileChecks[2])
+                this.dataViewList.Items[1].SubItems[1].Text = clientData.bp[0].ToString() + "/" + clientData.bp[1].ToString();
+            // add temp
+            if (clientData.fileChecks[3])
+                this.dataViewList.Items[2].SubItems[1].Text = (clientData.temp.ToString() + " °F");
+
+            // add age
+            this.dataViewList.Items[3].SubItems[1].Text = clientData.age.ToString();
+
+            // add weight
+            this.dataViewList.Items[4].SubItems[1].Text = (clientData.weight.ToString() + " Lbs");
+
+            DateTime dt = DateTime.ParseExact(clientData.logTime, dateFormatString, null);
+            this.logTimeLabel.Text = "Log Time: " + dt;
         }
 
-        private void serialConnectButton_Click(object sender, EventArgs e)
+        private void uploadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SerialController sControl = new SerialController();
-            sControl.ShowDialog();
+            if (settings.firstName != "" & settings.lastName != "" & settings.age != "" & settings.weight != "")
+            {
+                UploadForm uForm = new UploadForm(settings.path);
+                uForm.ShowDialog();
+            }
+
+            else
+            {
+                MessageBox.Show("Please ensure user settings pane has all fields completed before uploading!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                settings.ShowDialog();
+            }
+
         }
+
 
 
 

@@ -104,7 +104,7 @@
             this.file1Label.Name = "file1Label";
             this.file1Label.Size = new System.Drawing.Size(59, 20);
             this.file1Label.TabIndex = 4;
-            this.file1Label.Text = "steth.virs: ";
+            this.file1Label.Text = "steth.sts: ";
             // 
             // file2Label
             // 
@@ -113,7 +113,7 @@
             this.file2Label.Name = "file2Label";
             this.file2Label.Size = new System.Drawing.Size(51, 20);
             this.file2Label.TabIndex = 5;
-            this.file2Label.Text = "pulse.txt";
+            this.file2Label.Text = "pulse.oxi";
             // 
             // file3Label
             // 
@@ -122,7 +122,7 @@
             this.file3Label.Name = "file3Label";
             this.file3Label.Size = new System.Drawing.Size(51, 20);
             this.file3Label.TabIndex = 6;
-            this.file3Label.Text = "bp.virs: ";
+            this.file3Label.Text = "bp.sph: ";
             // 
             // file4Label
             // 
@@ -131,7 +131,7 @@
             this.file4Label.Name = "file4Label";
             this.file4Label.Size = new System.Drawing.Size(51, 20);
             this.file4Label.TabIndex = 7;
-            this.file4Label.Text = "temp.txt";
+            this.file4Label.Text = "temp.temp";
             // 
             // foundLabel1
             // 

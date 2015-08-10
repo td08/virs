@@ -48,7 +48,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Lib\AesServiceProvider.cs" />
+    <Compile Include="lib\AesClient.cs" />
+    <Compile Include="UploadForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UploadForm.Designer.cs">
+      <DependentUpon>UploadForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserSettings.Designer.cs">
+      <DependentUpon>UserSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="lib\AesServiceProvider.cs" />
     <Compile Include="ClientForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -61,11 +74,11 @@
     <Compile Include="FileBrowseCheck.Designer.cs">
       <DependentUpon>FileBrowseCheck.cs</DependentUpon>
     </Compile>
-    <Compile Include="Lib\Jlib.cs" />
+    <Compile Include="lib\Jlib.cs" />
     <Compile Include="FormMain.cs" />
-    <Compile Include="Lib\WavBuilder.cs" />
+    <Compile Include="lib\WavBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Lib\Vitals.cs" />
+    <Compile Include="lib\Vitals.cs" />
     <Compile Include="SerialController.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,6 +93,12 @@
     </Compile>
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UploadForm.resx">
+      <DependentUpon>UploadForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserSettings.resx">
+      <DependentUpon>UserSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FileBrowseCheck.resx">
       <DependentUpon>FileBrowseCheck.cs</DependentUpon>

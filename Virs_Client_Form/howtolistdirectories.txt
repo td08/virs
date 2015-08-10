@@ -1,0 +1,12 @@
+// Get the directories currently on the C drive.
+            DirectoryInfo[] cDirs = new DirectoryInfo(@"c:\").GetDirectories();
+
+            // Write each directory name to a file. 
+            using (StreamWriter sw = new StreamWriter("CDriveDirs.txt"))
+            {
+                foreach (DirectoryInfo dir in cDirs)
+                {
+                    sw.WriteLine(dir.Name);
+
+                }
+            }

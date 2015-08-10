@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.IO;
+using System.Security.Cryptography;
 
 /**********     Client Handler     **********
  * 
@@ -25,6 +26,7 @@ namespace Json_Server_Form
         private TcpListener serverSocket;               // main TcpListener used for server socket
         private Json_Server_Form.ServerForm parentForm; // inherit parent serverForm controls
         private List<ClientObject> clientList;          // array list used to hold active clients
+        private object lockObject = new object();       // object used for the lock statement when writing data to the disk
         public bool closeHandler;                       // bool flag to signal thread shutdown
 
         // ClientHandler constructor
@@ -60,7 +62,6 @@ namespace Json_Server_Form
                     parentForm.appendOutputDisplay("Error: " + e.Message);
                     break;
                 }
-                               
             }
 
             foreach (var c in clientList)
@@ -69,7 +70,7 @@ namespace Json_Server_Form
                 {
                     c.Shutdown();       // close each client socket currently connected                    
                     parentForm.appendOutputDisplay("Client " + c.clientId + " disconnected upon server exit");
-                }                    
+                }
             }
         }
 
@@ -78,44 +79,69 @@ namespace Json_Server_Form
             ClientObject client = (ClientObject)threadContext;
             byte[] encryptedData = null;
             byte[] decryptedData = null;
+            byte[] encryptedWavFile = null;
+            byte[] decryptedWavFile = null;
+            byte[] wavBytes = null;
             string dataFromClient = null;
             bool exceptionOccurred = false;
 
             performKeyExchange(client);     // get sym key for encrypted communications with client
 
-            while (client.socket.Connected)
+            try
             {
-                try
-                {
-                    encryptedData = receiveEncryptedData(client);    // receive encrypted data from client
-                    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
-                    //processData(decryptedData);
+                encryptedData = receiveEncryptedData(client);    // receive encrypted data from client
+                decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
+                processData(decryptedData);
 
-                    // display received data from client
-                    dataFromClient = System.Text.Encoding.UTF8.GetString(decryptedData);
-                    parentForm.appendOutputDisplay("Client " + client.clientId + " : " + dataFromClient);
+                //wavBytes = receiveWavBytes(client);              // receive byte buffer containing length of encrypted wav file if present
+                //if (BitConverter.ToInt32(wavBytes, 0) > 0)
+                //{
+                //    encryptedWavFile = receiveEncryptedWav(client, BitConverter.ToInt32(wavBytes, 0));
+                //    decryptedWavFile = client.aes.decryptData(encryptedWavFile);   // decrypt wav file using symmetric key
+                //    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
+                //    processDataWithWav(decryptedData, decryptedWavFile);
+                //}
 
-                    Array.Clear(decryptedData, 0, decryptedData.Length);
-                }
-                catch (SocketException s)
+                //else
+                //{
+                //    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
+                //    processData(decryptedData);
+                //}
+
+                Array.Clear(decryptedData, 0, decryptedData.Length);
+            }
+            catch (SocketException s)
+            {
+                if (closeHandler)
+                    parentForm.appendOutputDisplay(s.Message);
+                client.stream.Dispose();
+                client.Shutdown();
+                exceptionOccurred = true;
+            }
+
+            catch (IOException i)
+            {
+                if (!closeHandler)      // if client terminated the connection
                 {
-                    if (closeHandler)
-                        parentForm.appendOutputDisplay(s.Message);
-                    client.stream.Dispose();
+                    parentForm.appendOutputDisplay("Error! Client " + client.clientId + " terminated connection!");
                     client.Shutdown();
-                    exceptionOccurred = true;
                 }
+                client.stream.Dispose();
+                exceptionOccurred = true;
+            }
 
-                catch (IOException i)
-                {
-                    if (!closeHandler)      // if client terminated the connection
-                    {
-                        parentForm.appendOutputDisplay("Error! Client " + client.clientId + " terminated connection!");
-                        client.Shutdown();
-                    }                        
-                    client.stream.Dispose();
-                    exceptionOccurred = true;
-                }
+            catch (CryptographicException c)
+            {
+                client.stream.Dispose();
+                client.Shutdown();
+                exceptionOccurred = true;
+            }
+
+            catch (ArgumentNullException n)
+            {
+                client.stream.Dispose();
+                client.Shutdown();
+                exceptionOccurred = true;
             }
 
             if (!exceptionOccurred)     // if no exceptions occurred, exit successfully
@@ -145,10 +171,70 @@ namespace Json_Server_Form
             return data;
         }
 
-        // method called to operate on received data from client and stores to a local directory
-        private void processData()
+        private byte[] receiveWavBytes(ClientObject c)
         {
+            Array.Clear(c.aes.cipherLength, 0, c.aes.cipherLength.Length);      // clear cipherLength
+            c.stream.Read(c.aes.cipherLength, 0, c.aes.cipherLength.Length);    // receive encrypted data length
+            return c.aes.cipherLength;
+        }
 
+        private byte[] receiveEncryptedWav(ClientObject c, int length)
+        {
+            byte[] data = new byte[length];     // instantiate encrypted data buffer
+            c.stream.Read(data, 0, data.Length);                            // receive encrypted data
+            return data;
+        }
+
+        // method called to operate on received wav file data from client and stores to a local directory
+        private void processDataWithWav(byte[] clientDataBytes, byte[] wavDataBytes)
+        {
+            string dataFromClient = System.Text.Encoding.UTF8.GetString(clientDataBytes);
+
+            Vitals clientData = Jlib.fromJson(dataFromClient);
+            string clientPath = Path.Combine(clientData.lastName + "-" + clientData.firstName, clientData.logTime);
+            string writePath = Path.Combine(parentForm.settings.path, clientPath);
+
+            try
+            {
+                lock (lockObject)   // locking while writing data to disk
+                {
+                    // serialize imported clientData to JSON and write to file in clientSettings path
+                    parentForm.appendOutputDisplay("writing data");
+                    Jlib.serializeVitalsToJson(writePath, clientData);
+                    // build filtered wav audio file using data from clientData.steth
+                    File.WriteAllBytes(Path.Combine(writePath, "steth.wav"), wavDataBytes);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                parentForm.appendOutputDisplay("Error saving VIRS files received from patient: " + clientData.lastName + "," + clientData.firstName + "\nPlease check path directory in settings and try again!");
+            }
+        }
+
+        // method called to operate on received data from client and stores to a local directory
+        private void processData(byte[] data)
+        {
+            string dataFromClient = System.Text.Encoding.UTF8.GetString(data);
+
+            Vitals clientData = Jlib.fromJson(dataFromClient);
+            string clientPath = Path.Combine(clientData.lastName + "-" + clientData.firstName, clientData.logTime);
+            string writePath = Path.Combine(parentForm.settings.path, clientPath);
+
+            try
+            {
+                lock (lockObject)   // locking while writing data to disk
+                {
+                    // serialize imported clientData to JSON and write to file in clientSettings path
+                    parentForm.appendOutputDisplay("writing data");
+                    Jlib.serializeVitalsToJson(writePath, clientData);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                parentForm.appendOutputDisplay("Error saving VIRS files received from patient: " + clientData.lastName + "," + clientData.firstName + "\nPlease check path directory in settings and try again!");
+            }
         }
     }
 

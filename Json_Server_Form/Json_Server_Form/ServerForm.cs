@@ -15,10 +15,12 @@ namespace Json_Server_Form
     public partial class ServerForm : Form
     {
         private ServerHelper helper;    // local ServerHelper instance variable
+        public ServerSettings settings;
 
         public ServerForm()
         {
             InitializeComponent();
+            settings = new ServerSettings();
         }
 
         //Delegates
@@ -30,68 +32,59 @@ namespace Json_Server_Form
 
         private void startButton_Click(object sender, EventArgs e)
         {
-            // enable and disable respective controls
-            this.startButton.Enabled = false;
-            this.localStartButton.Enabled = false;
-            this.stopButton.Enabled = true;
+            if (settings.path != "")
+            {
+                // enable and disable respective controls
+                this.startButton.Enabled = false;
+                this.stopButton.Enabled = true;
 
-            helper = new ServerHelper(this, false);    // start without localhost
+                helper = new ServerHelper(this, settings.localHost);    // start without localhost
+            }
 
-            //start server without localhost
-            //AsyncServer server = new AsyncServer(this);
-            //server.StartListening(false);
-        }
-
-        private void localStartButton_Click(object sender, EventArgs e)
-        {
-            // enable and disable respective controls
-            this.localStartButton.Enabled = false;
-            this.startButton.Enabled = false;
-            this.stopButton.Enabled = true;
-
-            helper = new ServerHelper(this, true);    // start with localhost
-
-            //start server using localhost
-            //AsyncServer server = new AsyncServer(this);
-            //server.StartListening(true);
+            else
+            {
+                MessageBox.Show("Please ensure a file directory is selected in the settings pane before starting server!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                settings.ShowDialog();
+            }
+            
         }
 
         private void stopButton_Click(object sender, EventArgs e)
         {
+            this.stopButton.Enabled = false;
             helper.stopServer.Set();
-            setIpLabel(null);
+            setIpLabel("");
         }
 
         private void OpenFileButton_Click(object sender, EventArgs e)
         {
-            Stream fileStream = null;
-            String jstring = null;
-            Vitals data;
-
-            //open file dialog window with start directory defined
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-            openFileDialog1.InitialDirectory = @"c:\\Users\Documents\School Work\Ecen 403";
-            openFileDialog1.Filter = "json files (*.json)|*.json";
-            openFileDialog1.RestoreDirectory = true;
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            string openPath;
+            FolderBrowserDialog browseDirectory = new FolderBrowserDialog();
+            browseDirectory.SelectedPath = settings.path;
+            DialogResult result = browseDirectory.ShowDialog(); // browse for folder
+            if (result == DialogResult.OK)
             {
-                try
+                openPath = browseDirectory.SelectedPath;   // get full file path
+                if (File.Exists(Path.Combine(openPath, "data.virs")))
                 {
-                    if ((fileStream = openFileDialog1.OpenFile()) != null)
-                    {
-                        //get json string from file stream
-                        jstring = Jlib.getJStringFromStream(fileStream);
-                        //create new Vitals object from jstring
-                        data = new Vitals(jstring);
-                        //display data to output
-                        appendOutputDisplay(displayData(data));
-                    }
+                    ViewData viewer = new ViewData(openPath);
+                    viewer.ShowDialog();
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                else MessageBox.Show("Error!\nNo VIRS files found in selected directory!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }            
+        }
+
+        public void enableStartButtons()
+        {
+            if (this.startButton.InvokeRequired)
+            {
+                startEnable s = new startEnable(enableStartButtons);
+                this.Invoke(s);
+            }
+            else
+            {
+                if (!startButton.Enabled)
+                    this.startButton.Enabled = true;
             }
         }
 
@@ -118,33 +111,16 @@ namespace Json_Server_Form
             }           
         }
 
-        // Button controls
-
-        public void enableStartButtons()
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.startButton.InvokeRequired | this.localStartButton.InvokeRequired)
-            {
-                startEnable s = new startEnable(enableStartButtons);
-                this.Invoke(s);
-            }
-            else
-            {
-                if (!startButton.Enabled)
-                    this.startButton.Enabled = true;
-                if (!localStartButton.Enabled)
-                    this.localStartButton.Enabled = true;
-            }            
+            if (startButton.Enabled)
+                settings.ShowDialog();
+            else MessageBox.Show("Please stop server before attempting to edit settings!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Hand);
         }
 
-        private string displayData(Vitals data)
+        private void ServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            appendOutputDisplay("\r\nVitals Data\r\n------------------");
-            return "Temp: " + data.temp + System.Environment.NewLine + "Heart: " + data.heart 
-                + System.Environment.NewLine + "BP: " + data.bp[0] + "/" + data.bp[1];
-        }
 
-        
-
-        
+        }     
     }
 }

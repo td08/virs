@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Media;
 
-namespace Virs_Client_Form
+namespace Json_Server_Form
 {
     class WavBuilder
     {
