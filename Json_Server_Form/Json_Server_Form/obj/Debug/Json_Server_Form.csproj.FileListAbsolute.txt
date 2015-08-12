@@ -12,3 +12,4 @@ C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\bin\Debu
 C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\obj\Debug\Json_Server_Form.ServerSettings.resources
 C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\obj\Debug\Json_Server_Form.ViewData.resources
+C:\Users\Trevor\Documents\GitHub\virs\Json_Server_Form\Json_Server_Form\obj\Debug\Json_Server_Form.csprojResolveAssemblyReference.cache

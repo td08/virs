@@ -11,7 +11,7 @@ namespace Virs_Client_Form
     class Vitals
     {
         public bool[] fileChecks;   // bool array that holds values indicating whether a field will be populated with recorded data
-        public int[] steth;
+        [NonSerialized] public int[] steth;
         public int pulse;
         public int[] bp;
         public double temp;

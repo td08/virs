@@ -21,7 +21,7 @@ namespace Virs_Client_Form
         private string importPath;          // full file path that specifies where VIRS files are located within the import context
         private string importPathName;      // name of importPath directory; used for clientData logTime as directory name will be a datetime
         private string openPath;            // full file path that specifies where VIRS files are located within the open context
-        private string dateFormatString = "yyyyMMddHHmm";   // string used to parse dateTime format for logTime
+        private string dateFormatString = "HHmm";   // string used to parse dateTime format for logTime
         private bool isPlaying;
 
 
@@ -65,7 +65,7 @@ namespace Virs_Client_Form
         {
             if (settings.firstName != "" & settings.lastName != "" & settings.age != "" & settings.weight != "")
             {
-                string[] fileNames = new string[] { "steth4.sts", "pulse.oxi", "bp.sph", "temp.temp" };   // VIRS file names to search for in directory
+                string[] fileNames = new string[] { "*.sts", "*.oxi", "*.sph", "*.tmp" };   // VIRS file names to search for in directory
                 bool[] fileCheck = new bool[4];    // bool array that corresponds to whether the fnames exist
 
                 FolderBrowserDialog browseDirectory = new FolderBrowserDialog();
@@ -77,11 +77,22 @@ namespace Virs_Client_Form
 
                     for (int i = 0; i < fileNames.Length; i++)
                     {
-                        if (File.Exists(Path.Combine(importPath, fileNames[i])))
+                        string pattern = fileNames[i];
+                        string[] hasFile = Directory.GetFiles(importPath, pattern);
+
+                        if (hasFile[0] != "")
                         {
-                            fileCheck[i] = true;   // if file exists at specified location, set fileCheck value to true
-                            fileNames[i] = (Path.Combine(importPath, fileNames[i]));    // then append directory name to file name in fNames
+                            int dotIndex = hasFile[0].IndexOf(".");
+                            importPathName = hasFile[0].Substring(dotIndex - 4, 4);
+                            fileCheck[i] = true;
+                            fileNames[i] = hasFile[0];
                         }
+
+                        //if (File.Exists(Path.Combine(importPath, fileNames[i])))
+                        //{
+                        //    fileCheck[i] = true;   // if file exists at specified location, set fileCheck value to true
+                        //    fileNames[i] = (Path.Combine(importPath, fileNames[i]));    // then append directory name to file name in fNames
+                        //}
                     }
 
                     checkFiles(fileCheck, fileNames);
@@ -197,22 +208,36 @@ namespace Virs_Client_Form
         private int[] processStethFile(string path)
         {
             List<int> raw = new List<int>();
-            using (StreamReader reader = new StreamReader(path))
+
+            using(StreamReader stream = new StreamReader(path))
+            using(BinaryReader reader = new BinaryReader(stream.BaseStream))
             {
-                while (!reader.EndOfStream)
+                for(int i = 0; i < 160000; i++)
                 {
-                    string value = reader.ReadLine();
-                    try
-                    {
-                        raw.Add(Int32.Parse(value));
-                    }
-                    catch (FormatException)
-                    {
-                        MessageBox.Show("Error reading data!\nStethoscope audio data may be corrupted!", "Import Error");
-                    }
+                    int temp = (int)reader.ReadUInt16();
+                    raw.Add(temp);
                 }
             }
+
             return raw.ToArray();
+
+            //List<int> raw = new List<int>();
+            //using (StreamReader reader = new StreamReader(path))
+            //{
+            //    while (!reader.EndOfStream)
+            //    {
+            //        string value = reader.ReadLine();
+            //        try
+            //        {
+            //            raw.Add(Int32.Parse(value));
+            //        }
+            //        catch (FormatException)
+            //        {
+            //            MessageBox.Show("Error reading data!\nStethoscope audio data may be corrupted!", "Import Error");
+            //        }
+            //    }
+            //}
+            //return raw.ToArray();
         }
 
         // method called to read and store pulse oximeter data from the specified file
@@ -226,7 +251,7 @@ namespace Virs_Client_Form
                     string value = reader.ReadLine();
                     try
                     {
-                        pulse = Int32.Parse(value);
+                        pulse += Int32.Parse(value);
                     }
                     catch (FormatException)
                     {
@@ -234,29 +259,34 @@ namespace Virs_Client_Form
                     }
                 }
             }
-            return pulse;
+            return (pulse / 100);
         }
 
         // method called to read and store blood pressure data from the specified file
+        // method not used in final project. Processing done with NI Measurement studio to analyze pressure
         private int[] processBPFile(string path)
         {
             int[] bp = new int[2];
-            int i = 0;
-            using (StreamReader reader = new StreamReader(path))
-            {
-                while (!reader.EndOfStream)
-                {
-                    string value = reader.ReadLine();
-                    try
-                    {
-                        bp[i++] = Int32.Parse(value);
-                    }
-                    catch (FormatException)
-                    {
-                        MessageBox.Show("Error reading data!\nBlood pressure data may be corrupted!", "Import Error");
-                    }
-                }
-            }
+            //int i = 0;
+            //using (StreamReader reader = new StreamReader(path))
+            //{
+            //    while (!reader.EndOfStream)
+            //    {
+            //        string value = reader.ReadLine();
+            //        try
+            //        {
+            //            bp[i++] = Int32.Parse(value);
+            //        }
+            //        catch (FormatException)
+            //        {
+            //            MessageBox.Show("Error reading data!\nBlood pressure data may be corrupted!", "Import Error");
+            //        }
+            //    }
+            //}
+
+            // return sample values instead
+            bp[0] = 120;
+            bp[1] = 80;
             return bp;
         }
 
@@ -279,7 +309,7 @@ namespace Virs_Client_Form
                     }
                 }
             }
-            return temp;
+            return temp / 100;
         }
 
         // method called to populate fields of dataViewList with current clientData object
@@ -297,7 +327,7 @@ namespace Virs_Client_Form
                 wavPlayer = new SoundPlayer(Path.Combine(path, "steth.wav"));
                 this.playAudioButton.Enabled = true;
             }
-            // add pulse
+            //add pulse
             if (clientData.fileChecks[1])
                 this.dataViewList.Items[0].SubItems[1].Text = (clientData.pulse.ToString() + " bpm");
             // add bp
@@ -305,7 +335,7 @@ namespace Virs_Client_Form
                 this.dataViewList.Items[1].SubItems[1].Text = clientData.bp[0].ToString() + "/" + clientData.bp[1].ToString();
             // add temp
             if (clientData.fileChecks[3])
-                this.dataViewList.Items[2].SubItems[1].Text = (clientData.temp.ToString() + " °F");
+                this.dataViewList.Items[2].SubItems[1].Text = (clientData.temp.ToString() + " °C");
 
             // add age
             this.dataViewList.Items[3].SubItems[1].Text = clientData.age.ToString();

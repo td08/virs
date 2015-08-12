@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncServer.cs" />
     <Compile Include="lib\AesServiceProvider.cs" />
     <Compile Include="lib\ClientHandler.cs" />
     <Compile Include="lib\Jlib.cs" />

@@ -92,8 +92,10 @@ namespace Json_Server_Form
             int max = 0;
             foreach (int s in averagedArray)
             {
-                if (Math.Abs(s) > max)
+                if (s > max)
                     max = s;
+                else if (s < -max)
+                    max = -s;
             }
             i = 0;
             

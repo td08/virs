@@ -76,7 +76,7 @@
             this.outputDisplay.Name = "outputDisplay";
             this.outputDisplay.ReadOnly = true;
             this.outputDisplay.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.outputDisplay.Size = new System.Drawing.Size(270, 261);
+            this.outputDisplay.Size = new System.Drawing.Size(336, 261);
             this.outputDisplay.TabIndex = 4;
             this.outputDisplay.Text = "Status\r\n-----------\r\n";
             // 
@@ -97,7 +97,7 @@
             this.editToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(429, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(477, 33);
             this.menuStrip1.TabIndex = 6;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -120,7 +120,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(429, 344);
+            this.ClientSize = new System.Drawing.Size(477, 344);
             this.Controls.Add(this.OpenFileButton);
             this.Controls.Add(this.outputDisplay);
             this.Controls.Add(this.ipLabel);

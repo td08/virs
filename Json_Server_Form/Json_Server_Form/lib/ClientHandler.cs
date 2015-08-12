@@ -82,7 +82,6 @@ namespace Json_Server_Form
             byte[] encryptedWavFile = null;
             byte[] decryptedWavFile = null;
             byte[] wavBytes = null;
-            string dataFromClient = null;
             bool exceptionOccurred = false;
 
             performKeyExchange(client);     // get sym key for encrypted communications with client
@@ -90,23 +89,20 @@ namespace Json_Server_Form
             try
             {
                 encryptedData = receiveEncryptedData(client);    // receive encrypted data from client
-                decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
-                processData(decryptedData);
+                wavBytes = receiveWavBytes(client);              // receive byte buffer containing length of encrypted wav file if there are bytes to transmit
+                if (BitConverter.ToInt32(wavBytes, 0) > 0)
+                {
+                    encryptedWavFile = receiveEncryptedWav(client, BitConverter.ToInt32(wavBytes, 0));
+                    decryptedWavFile = client.aes.decryptData(encryptedWavFile);   // decrypt wav file using symmetric key
+                    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
+                    processDataWithWav(decryptedData, decryptedWavFile);
+                }
 
-                //wavBytes = receiveWavBytes(client);              // receive byte buffer containing length of encrypted wav file if present
-                //if (BitConverter.ToInt32(wavBytes, 0) > 0)
-                //{
-                //    encryptedWavFile = receiveEncryptedWav(client, BitConverter.ToInt32(wavBytes, 0));
-                //    decryptedWavFile = client.aes.decryptData(encryptedWavFile);   // decrypt wav file using symmetric key
-                //    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
-                //    processDataWithWav(decryptedData, decryptedWavFile);
-                //}
-
-                //else
-                //{
-                //    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
-                //    processData(decryptedData);
-                //}
+                else
+                {
+                    decryptedData = client.aes.decryptData(encryptedData);  // decrypt data using symmetric key
+                    processData(decryptedData);
+                }
 
                 Array.Clear(decryptedData, 0, decryptedData.Length);
             }
@@ -167,21 +163,40 @@ namespace Json_Server_Form
             Array.Clear(c.aes.cipherLength, 0, c.aes.cipherLength.Length);      // clear cipherLength
             c.stream.Read(c.aes.cipherLength, 0, c.aes.cipherLength.Length);    // receive encrypted data length
             byte[] data = new byte[BitConverter.ToInt32(c.aes.cipherLength, 0)];     // instantiate encrypted data buffer
-            c.stream.Read(data, 0, data.Length);                            // receive encrypted data
+            int remaining = data.Length;
+            int offset = 0;
+            int read = 0;
+            while (remaining > 0)
+            {
+                read = c.stream.Read(data, offset, remaining);                            // receive encrypted data
+                remaining -= read;
+                offset += read;
+            }
+            parentForm.appendOutputDisplay("Received " + offset + " bytes from Client: " + c.clientId);
             return data;
         }
 
         private byte[] receiveWavBytes(ClientObject c)
         {
             Array.Clear(c.aes.cipherLength, 0, c.aes.cipherLength.Length);      // clear cipherLength
-            c.stream.Read(c.aes.cipherLength, 0, c.aes.cipherLength.Length);    // receive encrypted data length
+            int read = c.stream.Read(c.aes.cipherLength, 0, c.aes.cipherLength.Length);    // receive encrypted data length
+            parentForm.appendOutputDisplay("Received " + read + " bytes from Client: " + c.clientId);
             return c.aes.cipherLength;
         }
 
         private byte[] receiveEncryptedWav(ClientObject c, int length)
         {
             byte[] data = new byte[length];     // instantiate encrypted data buffer
-            c.stream.Read(data, 0, data.Length);                            // receive encrypted data
+            int remaining = data.Length;
+            int offset = 0;
+            int read = 0;
+            while (remaining > 0)
+            {
+                read = c.stream.Read(data, offset, remaining);                            // receive encrypted data
+                remaining -= read;
+                offset += read;
+            }
+            parentForm.appendOutputDisplay("Received " + offset + " bytes from Client: " + c.clientId);
             return data;
         }
 
@@ -199,10 +214,12 @@ namespace Json_Server_Form
                 lock (lockObject)   // locking while writing data to disk
                 {
                     // serialize imported clientData to JSON and write to file in clientSettings path
-                    parentForm.appendOutputDisplay("writing data");
+                    parentForm.appendOutputDisplay("Writing data...");
                     Jlib.serializeVitalsToJson(writePath, clientData);
                     // build filtered wav audio file using data from clientData.steth
                     File.WriteAllBytes(Path.Combine(writePath, "steth.wav"), wavDataBytes);
+                    parentForm.appendOutputDisplay("Wrote data to: " + clientPath);
+
                 }
             }
 
@@ -228,6 +245,7 @@ namespace Json_Server_Form
                     // serialize imported clientData to JSON and write to file in clientSettings path
                     parentForm.appendOutputDisplay("writing data");
                     Jlib.serializeVitalsToJson(writePath, clientData);
+                    parentForm.appendOutputDisplay("Wrote data to: " + clientPath);
                 }
             }
 

@@ -88,13 +88,7 @@ namespace Virs_Client_Form
 
 
 
-            /////////////////////////////////
-            int max = 0;
-            foreach (int s in averagedArray)
-            {
-                if (Math.Abs(s) > max)
-                    max = s;
-            }
+            ////////////////////////////////
             i = 0;
             
             int averages = 50;
@@ -118,12 +112,22 @@ namespace Virs_Client_Form
                 sw.WriteLine(averagedArray[i - 1].ToString());
             }
             sw.Close();            
+            /////////////////////////////////
+
+            int max = 0;
+            foreach (int s in averagedArray)
+            {
+                if (s > max)
+                    max = s;
+                else if (s < -max)
+                    max = -s;
+            }
+
             i = 0;
             foreach (int s in averagedArray)
             {
                 averagedArray[i++] = (int)(((float)s) / ((float)max) * 32000.0f);
             }
-            /////////////////////////////////
 
             // convert to array of shorts
             short[] final = new short[averagedArray.Length];

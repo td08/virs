@@ -18,9 +18,12 @@ namespace Virs_Client_Form
         private SerialPort comPort;
         private ManualResetEvent initialResponse;
         private delegate void setTextCallback(string text);
+        private string dateString;
 
         DateTime currentDateTime;
-        string dateFormatString = "yyyyMMddHHmm";
+        //string dateFormatString = "yyyyMMddHHmm";
+        string dateFormatString = "HHmm";
+
 
         public SerialController()
         {
@@ -86,14 +89,14 @@ namespace Virs_Client_Form
             try
             {
                 comPort.Open();
-                appendStatusBox("Connected on " + comPort.PortName + "!" + System.Environment.NewLine);
+                appendStatusBox("Connected on " + comPort.PortName + "!" + System.Environment.NewLine + "Please press the reset button now...");
                 connectedButtonsEnable();
-                Thread.Sleep(1000);     // wait for MCU to open connection
+                Thread.Sleep(5000);     // wait for MCU to open connection
                 currentDateTime = DateTime.Now;
-                string dateString = currentDateTime.ToString(dateFormatString);
-                comPort.Write("mkdir " + dateString);   // make directory on MCU sd card named current date
+                dateString = currentDateTime.ToString(dateFormatString);
+                //comPort.Write("mkdir " + dateString);   // make directory on MCU sd card named current date
 
-                initialResponse.WaitOne();
+                //initialResponse.WaitOne();
             }
 
             catch (System.IO.IOException i)
@@ -111,29 +114,30 @@ namespace Virs_Client_Form
 
         private void dataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (initialResponse.WaitOne(0))
-                appendStatusBox(comPort.ReadExisting());
-            else initialResponse.Set();
+            appendStatusBox(comPort.ReadExisting());
+
+            //if (initialResponse.WaitOne(0))
+            //else initialResponse.Set();
         }
 
         private void runSteth_Click(object sender, EventArgs e)
         {
-            comPort.Write("help\r");
+            comPort.Write("st " + dateString + "\n");
         }
         
         private void runPulse_Click(object sender, EventArgs e)
         {
-            
+            comPort.Write("oxi " + dateString + "\n");
         }        
 
         private void runBP_Click(object sender, EventArgs e)
         {
-            comPort.Write("bp test\r");
+            comPort.Write("bp " + dateString + "\n");
         }
 
         private void runTemp_Click(object sender, EventArgs e)
         {
-
+            comPort.Write("tp " + dateString + "\n");
         }
 
         private void appendStatusBox(string text)

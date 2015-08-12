@@ -11,8 +11,8 @@ namespace Json_Server_Form
     class Vitals
     {
         public bool[] fileChecks;   // bool array that holds values indicating whether a field will be populated with recorded data
-        public int[] steth;
-        public int pulse;
+        [NonSerialized] public int[] steth;
+        public double pulse;
         public int[] bp;
         public double temp;
         public string logTime, firstName, lastName, age, weight;

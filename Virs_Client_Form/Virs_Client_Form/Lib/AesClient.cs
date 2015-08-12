@@ -21,6 +21,7 @@ namespace Virs_Client_Form
             byte[] encryptedWavFile = null;
             byte[] encryptedWavFileLength = new byte[4];
             bool wavExists = false;
+            int sent = 0;
 
             parent.appendStatus("Connecting to server...");
 
@@ -64,33 +65,34 @@ namespace Virs_Client_Form
                     byte[] dataLength = new byte[4];
                     dataLength = BitConverter.GetBytes(encryptedData.Length);
                     stream.Write(dataLength, 0, dataLength.Length);
+                    parent.appendStatus("Sent " + dataLength.Length + " bytes");
 
                     // once server knows message size, send the encrypted data to the server
                     stream.Write(encryptedData, 0, encryptedData.Length);
+                    parent.appendStatus("Sent " + encryptedData.Length + " bytes");
+                    
+                    // write wav byte array
+                    if (wavExists)
+                    {
+                        // encrypt wav file
+                        encryptedWavFile = asp.encryptData(wavFileBytes);
+                        parent.appendStatus("Length of encryptedWavFile: " + encryptedWavFile.Length + " bytes");
+                        // get size of encrypted buffer
+                        encryptedWavFileLength = BitConverter.GetBytes(encryptedWavFile.Length);
+                        // write size of file buffer to stream
+                        stream.Write(encryptedWavFileLength, 0, encryptedWavFileLength.Length);
+                        parent.appendStatus("Sent " + encryptedWavFileLength.Length + " bytes");
+                        // write encrypted wav file to stream
+                        stream.Write(encryptedWavFile, 0, encryptedWavFile.Length);
+                        parent.appendStatus("Sent " + encryptedWavFile.Length + " bytes");
+                    }
 
-
-                    /////// write wav byte array
-
-
-                    //if (wavExists)
-                    //{
-                    //    // encrypt wav file
-                    //    encryptedWavFile = asp.encryptData(wavFileBytes);
-                    //    parent.appendStatus("Length of encryptedWavFile: " + encryptedWavFile.Length + " bytes");
-                    //    // get size of encrypted buffer
-                    //    encryptedWavFileLength = BitConverter.GetBytes(encryptedWavFile.Length);
-                    //    // write size of file buffer to stream
-                    //    stream.Write(encryptedWavFileLength, 0, encryptedWavFileLength.Length);
-                    //    // write encrypted wav file to stream
-                    //    stream.Write(encryptedWavFile, 0, encryptedWavFile.Length);
-                    //}
-
-                    //else
-                    //{
-                    //    // send server encryptedWavFileLength array indicating zero bytes meaning no file will be sent
-                    //    encryptedWavFileLength = BitConverter.GetBytes(0);
-                    //    stream.Write(encryptedWavFileLength, 0, encryptedWavFileLength.Length);
-                    //}
+                    else
+                    {
+                        // send server encryptedWavFileLength array indicating zero bytes meaning no file will be sent
+                        encryptedWavFileLength = BitConverter.GetBytes(0);
+                        stream.Write(encryptedWavFileLength, 0, encryptedWavFileLength.Length);
+                    }
 
                     asp.releaseResources();
                 }

@@ -14,7 +14,7 @@ namespace Json_Server_Form
 {
     public partial class ViewData : Form
     {
-        private string dateFormatString = "yyyyMMddHHmm";   // string used to parse dateTime format for logTime
+        private string dateFormatString = "HHmm";   // string used to parse dateTime format for logTime
         private bool isPlaying = false;
         private SoundPlayer wavPlayer;
 
